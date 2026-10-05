@@ -157,6 +157,8 @@ export interface JobApplication {
   experience: string;
   currentCompany?: string;
   coverNote: string;
+  resumeFileName?: string;
+  resumeFileData?: string;
   appliedAt: string;
   status: ApplicationStatus;
 }

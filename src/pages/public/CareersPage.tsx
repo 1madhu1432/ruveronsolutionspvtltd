@@ -10,6 +10,8 @@ import {
   Sparkles,
   Users,
   TrendingUp,
+  Upload,
+  Paperclip,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SEOHead } from '../../components/common/SEOHead';
@@ -23,13 +25,24 @@ export const CareersPage: React.FC = () => {
 
   const [selectedJob, setSelectedJob] = useState<CareerJob | null>(null);
 
-  const [applicantForm, setApplicantForm] = useState({
+  const [applicantForm, setApplicantForm] = useState<{
+    fullName: string;
+    email: string;
+    phone: string;
+    experience: string;
+    currentCompany: string;
+    coverNote: string;
+    resumeFileName?: string;
+    resumeFileData?: string;
+  }>({
     fullName: '',
     email: '',
     phone: '',
     experience: '',
     currentCompany: '',
     coverNote: '',
+    resumeFileName: '',
+    resumeFileData: '',
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -49,6 +62,20 @@ export const CareersPage: React.FC = () => {
     return matchesSearch && matchesDept;
   });
 
+  const handleResumeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setApplicantForm((prev) => ({
+        ...prev,
+        resumeFileName: file.name,
+        resumeFileData: reader.result as string,
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleApplySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedJob || !applicantForm.fullName || !applicantForm.email || !applicantForm.phone) return;
@@ -62,6 +89,8 @@ export const CareersPage: React.FC = () => {
       experience: applicantForm.experience || 'Not Specified',
       currentCompany: applicantForm.currentCompany || 'N/A',
       coverNote: applicantForm.coverNote,
+      resumeFileName: applicantForm.resumeFileName || 'Candidate_Resume.pdf',
+      resumeFileData: applicantForm.resumeFileData,
     });
 
     setIsSubmitted(true);
@@ -75,6 +104,8 @@ export const CareersPage: React.FC = () => {
         experience: '',
         currentCompany: '',
         coverNote: '',
+        resumeFileName: '',
+        resumeFileData: '',
       });
     }, 2500);
   };
@@ -329,12 +360,39 @@ export const CareersPage: React.FC = () => {
                   <div>
                     <label className="block text-slate-700 font-bold mb-1">Cover Note / Overview</label>
                     <textarea
-                      rows={4}
+                      rows={3}
                       value={applicantForm.coverNote}
                       onChange={(e) => setApplicantForm({ ...applicantForm, coverNote: e.target.value })}
                       placeholder="Briefly describe your relevant payroll, HR, or compliance experience..."
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 outline-none focus:ring-2 focus:ring-ruveron-royal resize-none"
                     />
+                  </div>
+
+                  {/* Resume Upload File Box */}
+                  <div className="space-y-1.5">
+                    <label className="block text-slate-700 font-bold">
+                      Upload Resume / CV (PDF, DOC, DOCX) *
+                    </label>
+                    <div className="p-4 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 transition text-center space-y-2 relative">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleResumeFileChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <Upload className="w-6 h-6 text-ruveron-royal mx-auto" />
+                      <div className="text-xs text-slate-700 font-semibold">
+                        {applicantForm.resumeFileName ? (
+                          <span className="text-emerald-700 font-bold flex items-center justify-center gap-1.5">
+                            <Paperclip className="w-4 h-4" />
+                            <span>Attached: {applicantForm.resumeFileName}</span>
+                          </span>
+                        ) : (
+                          <span>Click or Drag & Drop to attach candidate resume</span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-500">Supported formats: PDF, DOC, DOCX (Max 10MB)</div>
+                    </div>
                   </div>
 
                   <div className="pt-2 flex justify-end gap-2">

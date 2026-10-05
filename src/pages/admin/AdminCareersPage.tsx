@@ -8,6 +8,8 @@ import {
   X,
   FileText,
   UserCheck,
+  Download,
+  Paperclip,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import type { CareerJob, JobApplication, ApplicationStatus } from '../../types';
@@ -252,6 +254,7 @@ export const AdminCareersPage: React.FC = () => {
                 <tr>
                   <th className="p-3.5">Applicant Name</th>
                   <th className="p-3.5">Position Applied</th>
+                  <th className="p-3.5">Resume File</th>
                   <th className="p-3.5">Experience & Company</th>
                   <th className="p-3.5">Applied Date</th>
                   <th className="p-3.5">Status</th>
@@ -266,6 +269,22 @@ export const AdminCareersPage: React.FC = () => {
                       <div className="text-[11px] text-slate-400">{app.email} • {app.phone}</div>
                     </td>
                     <td className="p-3.5 font-semibold text-cyan-300">{app.jobTitle}</td>
+                    <td className="p-3.5">
+                      {app.resumeFileName ? (
+                        <a
+                          href={app.resumeFileData || '#'}
+                          download={app.resumeFileName}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/80 border border-emerald-800 text-emerald-300 hover:text-white transition font-mono text-[11px]"
+                          title="Download Candidate Resume"
+                        >
+                          <Paperclip className="w-3 h-3 text-emerald-400" />
+                          <span className="truncate max-w-[120px]">{app.resumeFileName}</span>
+                          <Download className="w-3 h-3 shrink-0" />
+                        </a>
+                      ) : (
+                        <span className="text-slate-500 italic">No File</span>
+                      )}
+                    </td>
                     <td className="p-3.5 text-slate-300">
                       {app.experience} ({app.currentCompany || 'N/A'})
                     </td>
@@ -442,6 +461,31 @@ export const AdminCareersPage: React.FC = () => {
               <div>Phone: <strong className="text-white">{selectedApp.phone}</strong></div>
               <div>Experience: <strong className="text-white">{selectedApp.experience}</strong></div>
               <div>Current Company: <strong className="text-white">{selectedApp.currentCompany || 'N/A'}</strong></div>
+
+              {/* Uploaded Resume File Card */}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <div className="p-2 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-400 shrink-0">
+                    <Paperclip className="w-4 h-4" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <div className="text-[10px] uppercase font-mono text-slate-400">Candidate Resume Attachment</div>
+                    <div className="font-bold text-white truncate">{selectedApp.resumeFileName || 'Resume_Document.pdf'}</div>
+                  </div>
+                </div>
+
+                {selectedApp.resumeFileData && (
+                  <a
+                    href={selectedApp.resumeFileData}
+                    download={selectedApp.resumeFileName || 'Candidate_Resume.pdf'}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
+                  </a>
+                )}
+              </div>
+
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                 <div className="font-semibold text-slate-400">Cover Note:</div>
                 <p className="text-slate-200 leading-relaxed">{selectedApp.coverNote || 'No cover note provided.'}</p>
@@ -462,3 +506,5 @@ export const AdminCareersPage: React.FC = () => {
     </div>
   );
 };
+
+export default AdminCareersPage;
