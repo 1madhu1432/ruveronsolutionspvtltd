@@ -16,6 +16,7 @@ import type {
   JobApplication,
   ApplicationStatus,
   PartnerItem,
+  ClientItem,
 } from '../types';
 import {
   initialCompanyInfo,
@@ -31,6 +32,7 @@ import {
   initialCareers,
   initialJobApplications,
   initialPartners,
+  initialClients,
 } from '../data/initialData';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 
@@ -81,6 +83,11 @@ interface DataContextType {
   updatePartner: (id: string, partner: Partial<PartnerItem>) => void;
   deletePartner: (id: string) => void;
 
+  clients: ClientItem[];
+  addClient: (client: Omit<ClientItem, 'id' | 'updatedAt'>) => void;
+  updateClient: (id: string, client: Partial<ClientItem>) => void;
+  deleteClient: (id: string) => void;
+
   leads: LeadItem[];
   addLeadFromForm: (formData: {
     fullName: string;
@@ -89,6 +96,8 @@ interface DataContextType {
     company: string;
     location: string;
     requirement: string;
+    leadType?: 'Service' | 'Solution';
+    serviceOrSolutionName?: string;
   }) => LeadItem;
   addLeadDirect: (lead: Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>) => void;
   updateLeadStatus: (id: string, newStatus: LeadStatus) => void;
@@ -137,6 +146,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [partners, setPartnersState] = useState<PartnerItem[]>(() =>
     getStorageItem('ruveron_partners', initialPartners)
   );
+  const [clients, setClientsState] = useState<ClientItem[]>(() =>
+    getStorageItem('ruveron_clients', initialClients)
+  );
   const [leads, setLeadsState] = useState<LeadItem[]>(() =>
     getStorageItem('ruveron_leads', initialLeads)
   );
@@ -156,6 +168,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => setStorageItem('ruveron_careers', careers), [careers]);
   useEffect(() => setStorageItem('ruveron_job_applications', jobApplications), [jobApplications]);
   useEffect(() => setStorageItem('ruveron_partners', partners), [partners]);
+  useEffect(() => setStorageItem('ruveron_clients', clients), [clients]);
   useEffect(() => setStorageItem('ruveron_leads', leads), [leads]);
   useEffect(() => setStorageItem('ruveron_seo_settings', seoSettings), [seoSettings]);
 
@@ -317,6 +330,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPartnersState((prev) => prev.filter((p) => p.id !== id));
   };
 
+  const addClient = (item: Omit<ClientItem, 'id' | 'updatedAt'>) => {
+    const newItem: ClientItem = {
+      ...item,
+      id: `cli-${Date.now()}`,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    setClientsState((prev) => [newItem, ...prev]);
+  };
+
+  const updateClient = (id: string, item: Partial<ClientItem>) => {
+    setClientsState((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...item, updatedAt: new Date().toISOString().split('T')[0] } : c))
+    );
+  };
+
+  const deleteClient = (id: string) => {
+    setClientsState((prev) => prev.filter((c) => c.id !== id));
+  };
+
   const addLeadFromForm = (formData: {
     fullName: string;
     phone: string;
@@ -324,9 +356,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     company: string;
     location: string;
     requirement: string;
+    leadType?: 'Service' | 'Solution';
+    serviceOrSolutionName?: string;
   }): LeadItem => {
     const now = new Date().toISOString();
     const leadId = `LEAD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const category = formData.leadType || 'Service';
     const newLead: LeadItem = {
       id: leadId,
       fullName: formData.fullName,
@@ -334,6 +369,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: formData.email,
       company: formData.company || 'Not Specified',
       location: formData.location || 'Not Specified',
+      leadType: category,
+      serviceOrSolutionName: formData.serviceOrSolutionName || (category === 'Service' ? 'General Service Inquiry' : 'General Solution Inquiry'),
       requirement: formData.requirement,
       source: 'Website',
       status: 'New',
@@ -344,14 +381,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `note-${Date.now()}`,
           date: now,
           author: 'Website Visitor',
-          text: `Enquiry submitted via Contact Form. Requirement: ${formData.requirement}`,
+          text: `Enquiry submitted via Contact Form (${category} Lead: ${formData.serviceOrSolutionName || 'General'}). Requirement: ${formData.requirement}`,
         },
       ],
       history: [
         {
           id: `hist-${Date.now()}`,
           date: now,
-          action: 'Lead Created from Contact Form (Status: New)',
+          action: `Lead Created from Contact Form (Type: ${category})`,
         },
       ],
     };
@@ -455,6 +492,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCareersState(initialCareers);
     setJobApplicationsState(initialJobApplications);
     setPartnersState(initialPartners);
+    setClientsState(initialClients);
     setLeadsState(initialLeads);
     setSEOSettingsState(initialSEOSettings);
     localStorage.clear();
@@ -500,6 +538,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addPartner,
         updatePartner,
         deletePartner,
+        clients,
+        addClient,
+        updateClient,
+        deleteClient,
         leads,
         addLeadFromForm,
         addLeadDirect,

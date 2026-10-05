@@ -8,6 +8,8 @@ export const exportLeadsToCSV = (leads: LeadItem[], filename = 'ruveron_leads_ex
 
   const headers = [
     'Lead ID',
+    'Lead Category (Type)',
+    'Service / Solution Name',
     'Full Name',
     'Phone',
     'Email',
@@ -29,6 +31,8 @@ export const exportLeadsToCSV = (leads: LeadItem[], filename = 'ruveron_leads_ex
 
   const rows = leads.map((lead) => [
     escapeCSV(lead.id),
+    escapeCSV(lead.leadType || 'Service'),
+    escapeCSV(lead.serviceOrSolutionName || 'General'),
     escapeCSV(lead.fullName),
     escapeCSV(lead.phone),
     escapeCSV(lead.email),

@@ -12,6 +12,7 @@ import type {
   CareerJob,
   JobApplication,
   PartnerItem,
+  ClientItem,
 } from '../types';
 
 export const initialCompanyInfo: CompanyInfo = {
@@ -399,6 +400,97 @@ export const initialPartners: PartnerItem[] = [
   },
 ];
 
+export const initialClients: ClientItem[] = [
+  {
+    id: 'cli-1',
+    name: 'Vanguard Tech Solutions',
+    industry: 'IT & ITeS',
+    logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://vanguardtech.example.com',
+    description: '250+ employees contract staffing and monthly payroll execution.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-2',
+    name: 'Apex Health Systems',
+    industry: 'Healthcare',
+    logoUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://apexhealth.example.com',
+    description: 'Hospital medical staff payroll computational & statutory returns.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-3',
+    name: 'Coastal Manufacturing Ltd',
+    industry: 'Manufacturing',
+    logoUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://coastalmfg.example.com',
+    description: 'Factory floor labor compliance audit and flexi-staffing.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-4',
+    name: 'Deccan Logistics Group',
+    industry: 'Logistics',
+    logoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://deccanlogistics.example.com',
+    description: 'Warehouse manpower deployment across AP & Telangana.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-5',
+    name: 'Indus Retail Outlets',
+    industry: 'Retail & Chain Outlets',
+    logoUrl: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://indusretail.example.com',
+    description: 'Multi-store retail staff payroll management and PF/ESI filings.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-6',
+    name: 'Zenith Softwares',
+    industry: 'IT & ITeS',
+    logoUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://zenithsoft.example.com',
+    description: 'Executive placement and permanent talent recruitment.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-7',
+    name: 'Horizon Pharma Care',
+    industry: 'Pharmaceuticals',
+    logoUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://horizonpharma.example.com',
+    description: 'Pharma field team staffing and statutory compliance audits.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'cli-8',
+    name: 'Capital Financial Services',
+    industry: 'BFSI',
+    logoUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80',
+    websiteUrl: 'https://capitalfinancial.example.com',
+    description: 'Financial operations staff recruitment and payroll processing.',
+    featuredOnHome: true,
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+];
+
 export const initialLeads: LeadItem[] = [
   {
     id: 'LEAD-1001',
@@ -407,6 +499,8 @@ export const initialLeads: LeadItem[] = [
     email: 'r.verma@vanguardtech.in',
     company: 'Vanguard Tech Solutions',
     location: 'Hyderabad',
+    leadType: 'Service',
+    serviceOrSolutionName: 'Contract & Temporary Staffing',
     requirement: 'Looking for contract staffing for 25 IT professionals and payroll outsourcing for 150 employees.',
     source: 'Website',
     status: 'New',
@@ -424,7 +518,7 @@ export const initialLeads: LeadItem[] = [
       {
         id: 'hist-1',
         date: '2026-10-05T09:30:00Z',
-        action: 'Lead Created from Contact Form',
+        action: 'Lead Created from Contact Form (Type: Service)',
       },
     ],
   },
@@ -435,6 +529,8 @@ export const initialLeads: LeadItem[] = [
     email: 'ananya.sharma@apexhealth.com',
     company: 'Apex Health Systems',
     location: 'Vijayawada',
+    leadType: 'Solution',
+    serviceOrSolutionName: 'Compliance Support',
     requirement: 'Need statutory compliance audit and monthly payroll management for hospital staff.',
     source: 'Campaign',
     status: 'Contacted',
@@ -445,14 +541,14 @@ export const initialLeads: LeadItem[] = [
         id: 'note-2',
         date: '2026-10-04T16:00:00Z',
         author: 'Account Manager',
-        text: 'Initial introductory call completed. Sent service catalog.',
+        text: 'Initial introductory call completed. Sent solution architecture.',
       },
     ],
     history: [
       {
         id: 'hist-2',
         date: '2026-10-04T14:15:00Z',
-        action: 'Lead Captured via Q4 Campaign',
+        action: 'Lead Captured via Q4 Campaign (Type: Solution)',
       },
       {
         id: 'hist-3',
@@ -468,6 +564,8 @@ export const initialLeads: LeadItem[] = [
     email: 'vikram.r@deccanlogistics.com',
     company: 'Deccan Logistics Pvt Ltd',
     location: 'Visakhapatnam',
+    leadType: 'Service',
+    serviceOrSolutionName: 'Recruitment & Talent Acquisition',
     requirement: 'Temporary staffing for 50 warehouse operators and labor law compliance support.',
     source: 'Website',
     status: 'Follow-up',
@@ -485,7 +583,7 @@ export const initialLeads: LeadItem[] = [
       {
         id: 'hist-4',
         date: '2026-10-03T11:20:00Z',
-        action: 'Lead Created from Contact Form',
+        action: 'Lead Created from Contact Form (Type: Service)',
       },
       {
         id: 'hist-5',
@@ -501,6 +599,8 @@ export const initialLeads: LeadItem[] = [
     email: 'priya@indusretail.com',
     company: 'Indus Retail Group',
     location: 'Bengaluru',
+    leadType: 'Service',
+    serviceOrSolutionName: 'Payroll Management Services',
     requirement: 'Full HR outsourcing for 80 store staff including payroll, ESI/PF filings, and attendance tracking.',
     source: 'Facebook',
     status: 'Qualified',
@@ -511,14 +611,14 @@ export const initialLeads: LeadItem[] = [
         id: 'note-4',
         date: '2026-10-03T11:30:00Z',
         author: 'Business Lead',
-        text: 'Qualified lead. Proposal submitted for review.',
+        text: 'Qualified lead. Service proposal submitted for review.',
       },
     ],
     history: [
       {
         id: 'hist-6',
         date: '2026-10-02T16:45:00Z',
-        action: 'Lead Captured via Social Ads',
+        action: 'Lead Captured via Social Ads (Type: Service)',
       },
       {
         id: 'hist-7',
@@ -534,6 +634,8 @@ export const initialLeads: LeadItem[] = [
     email: 'suresh@coastalmfg.co.in',
     company: 'Coastal Manufacturing Ltd',
     location: 'Vijayawada',
+    leadType: 'Solution',
+    serviceOrSolutionName: 'Payroll Solutions',
     requirement: 'Factory workforce recruitment and monthly payroll execution.',
     source: 'Website',
     status: 'Converted',
@@ -544,14 +646,14 @@ export const initialLeads: LeadItem[] = [
         id: 'note-5',
         date: '2026-10-01T15:00:00Z',
         author: 'Managing Director',
-        text: 'SLA signed. Onboarding started.',
+        text: 'SLA signed for Payroll Solution. Onboarding started.',
       },
     ],
     history: [
       {
         id: 'hist-8',
         date: '2026-09-28T10:00:00Z',
-        action: 'Lead Created from Contact Form',
+        action: 'Lead Created from Contact Form (Type: Solution)',
       },
       {
         id: 'hist-9',
@@ -567,6 +669,8 @@ export const initialLeads: LeadItem[] = [
     email: 'm.joshi@zenithsoft.io',
     company: 'Zenith Softwares',
     location: 'Chennai',
+    leadType: 'Solution',
+    serviceOrSolutionName: 'Workforce Solutions',
     requirement: 'Seeking overseas recruitment services.',
     source: 'Advertisement',
     status: 'Lost',
@@ -584,7 +688,7 @@ export const initialLeads: LeadItem[] = [
       {
         id: 'hist-10',
         date: '2026-09-25T11:00:00Z',
-        action: 'Lead Created',
+        action: 'Lead Created (Type: Solution)',
       },
       {
         id: 'hist-11',
@@ -632,5 +736,10 @@ export const initialSEOSettings: SEOSettings = {
     title: 'Our Partners & Industry Associates | RUVERON SOLUTIONS PRIVATE LIMITED',
     description: 'Discover the strategic enterprise partners and industry associates collaborating with RUVERON SOLUTIONS PRIVATE LIMITED.',
     keywords: 'Ruveron partners, enterprise HR partners, corporate associates, workforce collaboration',
+  },
+  clients: {
+    title: 'Our Clients | RUVERON SOLUTIONS PRIVATE LIMITED',
+    description: 'Trusted by leading corporate enterprises, manufacturing plants, healthcare networks, retail chains, and IT companies across India.',
+    keywords: 'Ruveron clients, HR clients India, corporate payroll portfolio, staffing client portfolio',
   },
 };

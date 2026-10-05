@@ -269,6 +269,45 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ==================================================
+          SECTION: INFINITE AUTO-SCROLLING CLIENT LOGOS TICKER
+          ================================================== */}
+      <section className="py-8 bg-slate-950 border-y border-slate-800 overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-4 mb-4 flex items-center justify-between">
+          <div className="text-xs font-bold uppercase tracking-widest text-cyan-400">
+            Trusted Workforce Partner For Enterprise Leaders
+          </div>
+          <Link to="/clients" className="text-xs font-bold text-slate-400 hover:text-white flex items-center gap-1">
+            <span>View All Clients</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="relative w-full overflow-hidden">
+          <div className="animate-marquee flex items-center gap-8">
+            {[...useData().clients.filter((c) => c.status === 'published'), ...useData().clients.filter((c) => c.status === 'published')].map((client, index) => (
+              <Link
+                key={`${client.id}-${index}`}
+                to="/clients"
+                className="flex items-center gap-3 px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 shrink-0 hover:border-cyan-400 transition group"
+              >
+                <img
+                  src={client.logoUrl}
+                  alt={client.name}
+                  className="w-8 h-8 object-cover rounded-lg"
+                />
+                <span className="text-xs font-bold text-slate-200 group-hover:text-white whitespace-nowrap">
+                  {client.name}
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-cyan-400 font-mono">
+                  {client.industry}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ==================================================
           SECTION 4: WHAT WE DO (5 SERVICE CARDS)
           ================================================== */}
       <section className="py-24 bg-slate-900 text-white relative">

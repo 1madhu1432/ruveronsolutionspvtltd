@@ -2,6 +2,8 @@ export type LeadStatus = 'New' | 'Contacted' | 'Follow-up' | 'Qualified' | 'Conv
 
 export type LeadSource = 'Website' | 'Instagram' | 'Facebook' | 'Campaign' | 'Advertisement' | 'Other';
 
+export type LeadCategory = 'Service' | 'Solution';
+
 export interface LeadNote {
   id: string;
   date: string;
@@ -22,6 +24,8 @@ export interface LeadItem {
   email: string;
   company: string;
   location: string;
+  leadType: LeadCategory;
+  serviceOrSolutionName?: string;
   requirement: string;
   source: LeadSource;
   status: LeadStatus;
@@ -168,6 +172,18 @@ export interface PartnerItem {
   updatedAt: string;
 }
 
+export interface ClientItem {
+  id: string;
+  name: string;
+  industry: string;
+  logoUrl: string;
+  websiteUrl?: string;
+  description?: string;
+  featuredOnHome?: boolean;
+  status: 'published' | 'draft';
+  updatedAt: string;
+}
+
 export interface SEOPageData {
   title: string;
   description: string;
@@ -184,4 +200,5 @@ export interface SEOSettings {
   contact: SEOPageData;
   careers: SEOPageData;
   partners: SEOPageData;
+  clients: SEOPageData;
 }

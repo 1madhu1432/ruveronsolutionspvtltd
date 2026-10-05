@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, Briefcase, Layers } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SEOHead } from '../../components/common/SEOHead';
+import type { LeadCategory } from '../../types';
 
 export const ContactPage: React.FC = () => {
-  const { companyInfo, addLeadFromForm } = useData();
+  const { companyInfo, services, solutions, addLeadFromForm } = useData();
+
+  const [leadType, setLeadType] = useState<LeadCategory>('Service');
+  const [selectedName, setSelectedName] = useState<string>(services[0]?.name || 'Recruitment & Talent Acquisition');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -19,9 +23,18 @@ export const ContactPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     if (errorMsg) setErrorMsg('');
+  };
+
+  const handleTypeToggle = (type: LeadCategory) => {
+    setLeadType(type);
+    if (type === 'Service') {
+      setSelectedName(services[0]?.name || 'Recruitment & Talent Acquisition');
+    } else {
+      setSelectedName(solutions[0]?.title || 'Workforce Solutions');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,8 +46,12 @@ export const ContactPage: React.FC = () => {
 
     setSubmitting(true);
     setTimeout(() => {
-      // Create lead in localStorage
-      addLeadFromForm(formData);
+      // Create lead with leadType and serviceOrSolutionName
+      addLeadFromForm({
+        ...formData,
+        leadType,
+        serviceOrSolutionName: selectedName,
+      });
       setSubmitting(false);
       setIsSubmitted(true);
       setFormData({
@@ -61,7 +78,7 @@ export const ContactPage: React.FC = () => {
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">Contact Us</h1>
           <p className="text-xl text-slate-300 font-normal max-w-2xl mx-auto">
-            Get in touch with our HR & Payroll specialists to discuss your organization needs.
+            Get in touch with our HR & Payroll specialists to discuss your service or solution requirements.
           </p>
         </div>
       </section>
@@ -151,7 +168,7 @@ export const ContactPage: React.FC = () => {
                 <div>
                   <h3 className="text-2xl font-extrabold text-slate-900">Submit Corporate Enquiry</h3>
                   <p className="text-sm text-slate-600 mt-1">
-                    Fill out the requirement details below and our team will get back to you shortly.
+                    Select your inquiry type (Service or Solution) and provide details for our team to contact you.
                   </p>
                 </div>
 
@@ -162,7 +179,7 @@ export const ContactPage: React.FC = () => {
                     </div>
                     <h4 className="text-xl font-bold text-emerald-900">Enquiry Submitted Successfully!</h4>
                     <p className="text-sm text-emerald-800 leading-relaxed max-w-md mx-auto">
-                      Thank you. Your enquiry has been submitted successfully. Our team will contact you shortly.
+                      Thank you. Your enquiry for <strong>{selectedName}</strong> ({leadType} Lead) has been recorded. Our team will contact you shortly.
                     </p>
                     <div className="pt-2">
                       <button
@@ -181,6 +198,64 @@ export const ContactPage: React.FC = () => {
                         <span>{errorMsg}</span>
                       </div>
                     )}
+
+                    {/* Inquiry Type Switcher */}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                        Inquiry Category Type *
+                      </label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => handleTypeToggle('Service')}
+                          className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition ${
+                            leadType === 'Service'
+                              ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Briefcase className="w-4 h-4" />
+                          <span>1. Service Enquiry</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleTypeToggle('Solution')}
+                          className={`py-3 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition ${
+                            leadType === 'Solution'
+                              ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+                              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Layers className="w-4 h-4" />
+                          <span>2. Solution Enquiry</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Specific Service/Solution Selection */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Select Specific {leadType === 'Service' ? 'Service' : 'Solution'} *
+                      </label>
+                      <select
+                        value={selectedName}
+                        onChange={(e) => setSelectedName(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-ruveron-royal outline-none transition"
+                      >
+                        {leadType === 'Service'
+                          ? services.map((s) => (
+                              <option key={s.id} value={s.name}>
+                                {s.name}
+                              </option>
+                            ))
+                          : solutions.map((sol) => (
+                              <option key={sol.id} value={sol.title}>
+                                {sol.title}
+                              </option>
+                            ))}
+                      </select>
+                    </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
@@ -261,14 +336,14 @@ export const ContactPage: React.FC = () => {
 
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Requirement / Service Details *
+                        Requirement Details *
                       </label>
                       <textarea
                         name="requirement"
                         rows={4}
                         value={formData.requirement}
                         onChange={handleChange}
-                        placeholder="Describe your staffing, payroll processing, or compliance requirements..."
+                        placeholder="Describe your specific workforce, staffing, payroll, or compliance requirements..."
                         className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-ruveron-royal focus:border-transparent outline-none transition resize-none"
                         required
                       />
@@ -284,7 +359,7 @@ export const ContactPage: React.FC = () => {
                       ) : (
                         <>
                           <Send className="w-4 h-4" />
-                          <span>Submit Enquiry</span>
+                          <span>Submit {leadType} Enquiry</span>
                         </>
                       )}
                     </button>
@@ -322,3 +397,5 @@ export const ContactPage: React.FC = () => {
     </>
   );
 };
+
+export default ContactPage;
