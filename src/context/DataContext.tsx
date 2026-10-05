@@ -12,6 +12,10 @@ import type {
   LeadStatus,
   SEOSettings,
   SEOPageData,
+  CareerJob,
+  JobApplication,
+  ApplicationStatus,
+  PartnerItem,
 } from '../types';
 import {
   initialCompanyInfo,
@@ -24,6 +28,9 @@ import {
   initialMedia,
   initialLeads,
   initialSEOSettings,
+  initialCareers,
+  initialJobApplications,
+  initialPartners,
 } from '../data/initialData';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 
@@ -58,6 +65,21 @@ interface DataContextType {
   media: MediaItem[];
   addMedia: (media: Omit<MediaItem, 'id' | 'createdAt'>) => void;
   deleteMedia: (id: string) => void;
+
+  careers: CareerJob[];
+  addCareerJob: (job: Omit<CareerJob, 'id' | 'postedDate'>) => void;
+  updateCareerJob: (id: string, job: Partial<CareerJob>) => void;
+  deleteCareerJob: (id: string) => void;
+
+  jobApplications: JobApplication[];
+  addJobApplication: (appData: Omit<JobApplication, 'id' | 'appliedAt' | 'status'>) => void;
+  updateApplicationStatus: (id: string, status: ApplicationStatus) => void;
+  deleteJobApplication: (id: string) => void;
+
+  partners: PartnerItem[];
+  addPartner: (partner: Omit<PartnerItem, 'id' | 'updatedAt'>) => void;
+  updatePartner: (id: string, partner: Partial<PartnerItem>) => void;
+  deletePartner: (id: string) => void;
 
   leads: LeadItem[];
   addLeadFromForm: (formData: {
@@ -106,6 +128,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [media, setMediaState] = useState<MediaItem[]>(() =>
     getStorageItem('ruveron_media', initialMedia)
   );
+  const [careers, setCareersState] = useState<CareerJob[]>(() =>
+    getStorageItem('ruveron_careers', initialCareers)
+  );
+  const [jobApplications, setJobApplicationsState] = useState<JobApplication[]>(() =>
+    getStorageItem('ruveron_job_applications', initialJobApplications)
+  );
+  const [partners, setPartnersState] = useState<PartnerItem[]>(() =>
+    getStorageItem('ruveron_partners', initialPartners)
+  );
   const [leads, setLeadsState] = useState<LeadItem[]>(() =>
     getStorageItem('ruveron_leads', initialLeads)
   );
@@ -122,6 +153,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => setStorageItem('ruveron_testimonials', testimonials), [testimonials]);
   useEffect(() => setStorageItem('ruveron_team', team), [team]);
   useEffect(() => setStorageItem('ruveron_media', media), [media]);
+  useEffect(() => setStorageItem('ruveron_careers', careers), [careers]);
+  useEffect(() => setStorageItem('ruveron_job_applications', jobApplications), [jobApplications]);
+  useEffect(() => setStorageItem('ruveron_partners', partners), [partners]);
   useEffect(() => setStorageItem('ruveron_leads', leads), [leads]);
   useEffect(() => setStorageItem('ruveron_seo_settings', seoSettings), [seoSettings]);
 
@@ -223,6 +257,64 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteMedia = (id: string) => {
     setMediaState((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const addCareerJob = (item: Omit<CareerJob, 'id' | 'postedDate'>) => {
+    const newItem: CareerJob = {
+      ...item,
+      id: `job-${Date.now()}`,
+      postedDate: new Date().toISOString().split('T')[0],
+    };
+    setCareersState((prev) => [newItem, ...prev]);
+  };
+
+  const updateCareerJob = (id: string, item: Partial<CareerJob>) => {
+    setCareersState((prev) =>
+      prev.map((job) => (job.id === id ? { ...job, ...item } : job))
+    );
+  };
+
+  const deleteCareerJob = (id: string) => {
+    setCareersState((prev) => prev.filter((job) => job.id !== id));
+  };
+
+  const addJobApplication = (appData: Omit<JobApplication, 'id' | 'appliedAt' | 'status'>) => {
+    const newApp: JobApplication = {
+      ...appData,
+      id: `app-${Date.now()}`,
+      appliedAt: new Date().toISOString(),
+      status: 'New',
+    };
+    setJobApplicationsState((prev) => [newApp, ...prev]);
+  };
+
+  const updateApplicationStatus = (id: string, status: ApplicationStatus) => {
+    setJobApplicationsState((prev) =>
+      prev.map((app) => (app.id === id ? { ...app, status } : app))
+    );
+  };
+
+  const deleteJobApplication = (id: string) => {
+    setJobApplicationsState((prev) => prev.filter((app) => app.id !== id));
+  };
+
+  const addPartner = (item: Omit<PartnerItem, 'id' | 'updatedAt'>) => {
+    const newItem: PartnerItem = {
+      ...item,
+      id: `part-${Date.now()}`,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    setPartnersState((prev) => [newItem, ...prev]);
+  };
+
+  const updatePartner = (id: string, item: Partial<PartnerItem>) => {
+    setPartnersState((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...item, updatedAt: new Date().toISOString().split('T')[0] } : p))
+    );
+  };
+
+  const deletePartner = (id: string) => {
+    setPartnersState((prev) => prev.filter((p) => p.id !== id));
   };
 
   const addLeadFromForm = (formData: {
@@ -360,6 +452,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTestimonialsState(initialTestimonials);
     setTeamState(initialTeam);
     setMediaState(initialMedia);
+    setCareersState(initialCareers);
+    setJobApplicationsState(initialJobApplications);
+    setPartnersState(initialPartners);
     setLeadsState(initialLeads);
     setSEOSettingsState(initialSEOSettings);
     localStorage.clear();
@@ -393,6 +488,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         media,
         addMedia,
         deleteMedia,
+        careers,
+        addCareerJob,
+        updateCareerJob,
+        deleteCareerJob,
+        jobApplications,
+        addJobApplication,
+        updateApplicationStatus,
+        deleteJobApplication,
+        partners,
+        addPartner,
+        updatePartner,
+        deletePartner,
         leads,
         addLeadFromForm,
         addLeadDirect,

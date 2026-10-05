@@ -127,6 +127,47 @@ export interface MediaItem {
   createdAt: string;
 }
 
+export interface CareerJob {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: 'Full-Time' | 'Part-Time' | 'Contract' | 'Remote';
+  experience: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  status: 'published' | 'draft';
+  postedDate: string;
+}
+
+export type ApplicationStatus = 'New' | 'Reviewing' | 'Shortlisted' | 'Rejected';
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  experience: string;
+  currentCompany?: string;
+  coverNote: string;
+  appliedAt: string;
+  status: ApplicationStatus;
+}
+
+export interface PartnerItem {
+  id: string;
+  name: string;
+  category: string;
+  logoUrl: string;
+  websiteUrl?: string;
+  description?: string;
+  status: 'published' | 'draft';
+  updatedAt: string;
+}
+
 export interface SEOPageData {
   title: string;
   description: string;
@@ -141,4 +182,6 @@ export interface SEOSettings {
   solutions: SEOPageData;
   services: SEOPageData;
   contact: SEOPageData;
+  careers: SEOPageData;
+  partners: SEOPageData;
 }

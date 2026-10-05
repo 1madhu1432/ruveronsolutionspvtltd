@@ -14,9 +14,11 @@ import {
   Search,
   Settings,
   LogOut,
+  Handshake,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../common/Logo';
+import { useData } from '../../context/DataContext';
 
 interface SidebarProps {
   mobileOpen: boolean;
@@ -27,10 +29,15 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { jobApplications } = useData();
+
+  const newAppsCount = jobApplications.filter((a) => a.status === 'New').length;
 
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
     { name: 'Lead Management', path: '/admin/leads', icon: <UserCheck className="w-4 h-4 text-cyan-400" />, badge: 'Leads' },
+    { name: 'Careers & Jobs', path: '/admin/careers', icon: <Briefcase className="w-4 h-4 text-emerald-400" />, badge: newAppsCount > 0 ? `${newAppsCount} Apps` : undefined },
+    { name: 'Our Partners', path: '/admin/partners', icon: <Handshake className="w-4 h-4 text-amber-400" /> },
     { name: 'Home Content', path: '/admin/home-content', icon: <Home className="w-4 h-4" /> },
     { name: 'About Us', path: '/admin/about-content', icon: <Info className="w-4 h-4" /> },
     { name: 'Solutions', path: '/admin/solutions', icon: <Layers className="w-4 h-4" /> },

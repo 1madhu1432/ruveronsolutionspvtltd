@@ -20,7 +20,6 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
@@ -30,6 +29,8 @@ export const Navbar: React.FC = () => {
     { name: 'About Us', path: '/about' },
     { name: 'Solutions', path: '/solutions' },
     { name: 'Services', path: '/services' },
+    { name: 'Partners', path: '/partners' },
+    { name: 'Careers', path: '/careers' },
     { name: 'Contact Us', path: '/contact' },
   ];
 
@@ -55,14 +56,14 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation Center */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-900/40 p-1.5 rounded-full border border-slate-700/40 backdrop-blur-sm">
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-900/40 p-1.5 rounded-full border border-slate-700/40 backdrop-blur-sm">
             {navLinks.map((link) => {
               const active = isActive(link.path);
               return (
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                     active
                       ? 'bg-ruveron-royal text-white shadow-md shadow-blue-500/20'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
@@ -75,7 +76,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Desktop CTA Right */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <Link
               to="/admin/login"
               className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 border border-slate-700/50 flex items-center gap-1.5 transition"
@@ -87,7 +88,7 @@ export const Navbar: React.FC = () => {
 
             <Link
               to="/contact"
-              className="group px-5 py-2.5 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-sm font-semibold shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-2"
+              className="group px-5 py-2.5 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-2"
             >
               <span>Get in Touch</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -95,7 +96,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Hamburger Button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <Link
               to="/admin/login"
               className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800"
@@ -116,7 +117,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-slate-900/98 border-b border-slate-800 shadow-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
+        <div className="lg:hidden bg-slate-900/98 border-b border-slate-800 shadow-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const active = isActive(link.path);
@@ -124,7 +125,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`px-4 py-3 rounded-xl text-base font-medium transition ${
+                  className={`px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                     active
                       ? 'bg-ruveron-royal text-white font-semibold'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -138,17 +139,17 @@ export const Navbar: React.FC = () => {
           <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
             <Link
               to="/contact"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-center font-semibold shadow-lg flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-center font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2"
             >
               <span>Get in Touch</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/admin/login"
-              className="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-center text-sm font-medium border border-slate-700/50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-center text-xs font-semibold border border-slate-700/50 flex items-center justify-center gap-2"
             >
               <UserCheck className="w-4 h-4 text-cyan-400" />
-              <span>Admin Login / CMS Portal</span>
+              <span>Admin Portal Login</span>
             </Link>
           </div>
         </div>

@@ -12,6 +12,8 @@ import { AboutPage } from './pages/public/AboutPage';
 import { SolutionsPage } from './pages/public/SolutionsPage';
 import { ServicesPage } from './pages/public/ServicesPage';
 import { ContactPage } from './pages/public/ContactPage';
+import { CareersPage } from './pages/public/CareersPage';
+import { PartnersPage } from './pages/public/PartnersPage';
 
 // Admin Pages
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
@@ -28,6 +30,8 @@ import { AdminMediaPage } from './pages/admin/AdminMediaPage';
 import { AdminContactPage } from './pages/admin/AdminContactPage';
 import { AdminSEOPage } from './pages/admin/AdminSEOPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminCareersPage } from './pages/admin/AdminCareersPage';
+import { AdminPartnersPage } from './pages/admin/AdminPartnersPage';
 
 // Public Layout Wrapper
 const PublicLayout = () => {
@@ -55,6 +59,8 @@ export const App: React.FC = () => {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/solutions" element={<SolutionsPage />} />
               <Route path="/services" element={<ServicesPage />} />
+              <Route path="/partners" element={<PartnersPage />} />
+              <Route path="/careers" element={<CareersPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>
 
@@ -66,6 +72,8 @@ export const App: React.FC = () => {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="careers" element={<AdminCareersPage />} />
+              <Route path="partners" element={<AdminPartnersPage />} />
               <Route path="home-content" element={<AdminHomeContentPage />} />
               <Route path="about-content" element={<AdminAboutContentPage />} />
               <Route path="solutions" element={<AdminSolutionsPage />} />

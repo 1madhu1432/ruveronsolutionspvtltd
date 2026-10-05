@@ -9,6 +9,9 @@ import type {
   LeadItem,
   SEOSettings,
   MediaItem,
+  CareerJob,
+  JobApplication,
+  PartnerItem,
 } from '../types';
 
 export const initialCompanyInfo: CompanyInfo = {
@@ -234,9 +237,9 @@ export const initialServices: ServiceItem[] = [
   },
 ];
 
-export const initialTestimonials: TestimonialItem[] = []; // Empty state by default per requirement
+export const initialTestimonials: TestimonialItem[] = [];
 
-export const initialTeam: TeamItem[] = []; // Empty state by default per requirement
+export const initialTeam: TeamItem[] = [];
 
 export const initialMedia: MediaItem[] = [
   {
@@ -254,6 +257,145 @@ export const initialMedia: MediaItem[] = [
     size: '890 KB',
     type: 'image/jpeg',
     createdAt: '2026-10-03',
+  },
+];
+
+export const initialCareers: CareerJob[] = [
+  {
+    id: 'job-101',
+    title: 'Senior Payroll Operations Manager',
+    department: 'Payroll Operations',
+    location: 'Vijayawada, AP',
+    type: 'Full-Time',
+    experience: '5-8 Years',
+    description: 'Lead multi-client payroll computational workflows, gross-to-net processing, statutory compliance filings, and client SLA management.',
+    requirements: [
+      'Deep knowledge of PF, ESI, PT, LWF, and TDS statutory calculations.',
+      'Proven experience handling multi-state payroll for 500+ employees.',
+      'Proficiency in ERP payroll software and MS Excel computation models.',
+      'Strong client communication and conflict resolution skills.'
+    ],
+    responsibilities: [
+      'Oversee monthly payroll processing cycles with zero error margin.',
+      'Verify statutory compliance returns before monthly deadlines.',
+      'Resolve client queries regarding compensation structures and tax deductions.'
+    ],
+    status: 'published',
+    postedDate: '2026-10-01',
+  },
+  {
+    id: 'job-102',
+    title: 'HR Compliance Consultant',
+    department: 'Statutory & Legal',
+    location: 'Vijayawada / Hyderabad',
+    type: 'Full-Time',
+    experience: '3-6 Years',
+    description: 'Manage pan-India statutory compliance audits, shop & establishment registrations, labor law advisory, and official inspection support.',
+    requirements: [
+      'Degree in Law or Post-Graduate in HR Management.',
+      'Thorough expertise in Indian Central & State Labor Laws.',
+      'Experience in managing labor inspectorate audits and filings.'
+    ],
+    responsibilities: [
+      'Conduct statutory compliance health checks for corporate clients.',
+      'Maintain statutory registers and file periodic returns.',
+      'Provide legal guidance on contract labor regulation.'
+    ],
+    status: 'published',
+    postedDate: '2026-10-02',
+  },
+  {
+    id: 'job-103',
+    title: 'Talent Acquisition Lead (IT & Staffing)',
+    department: 'Recruitment Services',
+    location: 'Vijayawada, AP (Hybrid)',
+    type: 'Full-Time',
+    experience: '2-5 Years',
+    description: 'Drive end-to-end recruitment campaigns for IT, manufacturing, and staffing client mandates.',
+    requirements: [
+      'Experience sourcing candidates via job portals, LinkedIn Recruiter, and referrals.',
+      'Strong candidate assessment and salary negotiation capability.',
+      'Ability to manage volume staffing projects under tight deadlines.'
+    ],
+    responsibilities: [
+      'Source, screen, and interview candidates for mid-to-senior positions.',
+      'Coordinate interview schedules with client hiring managers.',
+      'Manage offer rollouts and onboarding handovers.'
+    ],
+    status: 'published',
+    postedDate: '2026-10-03',
+  },
+];
+
+export const initialJobApplications: JobApplication[] = [
+  {
+    id: 'app-501',
+    jobId: 'job-101',
+    jobTitle: 'Senior Payroll Operations Manager',
+    fullName: 'Kalyan Chakravarthy',
+    email: 'kalyan.c@gmail.com',
+    phone: '+91-9848012345',
+    experience: '6 Years',
+    currentCompany: 'Apex Corporate Solutions',
+    coverNote: 'Extensive experience managing multi-client payroll processing and statutory returns.',
+    appliedAt: '2026-10-04T11:00:00Z',
+    status: 'Reviewing',
+  },
+  {
+    id: 'app-502',
+    jobId: 'job-103',
+    jobTitle: 'Talent Acquisition Lead (IT & Staffing)',
+    fullName: 'Sravani Rao',
+    email: 'sravani.rao@outlook.com',
+    phone: '+91-9966554433',
+    experience: '4 Years',
+    currentCompany: 'TalentHub India',
+    coverNote: 'Proven track record in IT recruitment and contract staffing candidate sourcing.',
+    appliedAt: '2026-10-05T10:15:00Z',
+    status: 'New',
+  },
+];
+
+export const initialPartners: PartnerItem[] = [
+  {
+    id: 'part-1',
+    name: 'Vanguard Tech Solutions',
+    category: 'Technology Partner',
+    logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
+    websiteUrl: 'https://vanguardtech.example.com',
+    description: 'Strategic IT talent deployment and contract staffing partner.',
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'part-2',
+    name: 'Apex Health Systems',
+    category: 'Healthcare Associate',
+    logoUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=400&q=80',
+    websiteUrl: 'https://apexhealth.example.com',
+    description: 'Healthcare manpower and specialized statutory compliance partner.',
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'part-3',
+    name: 'Coastal Manufacturing Ltd',
+    category: 'Industrial Partner',
+    logoUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80',
+    websiteUrl: 'https://coastalmfg.example.com',
+    description: 'Factory labor compliance and turnkey workforce execution partner.',
+    status: 'published',
+    updatedAt: '2026-10-01',
+  },
+  {
+    id: 'part-4',
+    name: 'Deccan Logistics Group',
+    category: 'Supply Chain Associate',
+    logoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=400&q=80',
+    websiteUrl: 'https://deccanlogistics.example.com',
+    description: 'Warehouse staffing and flexi-workforce deployment associate.',
+    status: 'published',
+    updatedAt: '2026-10-01',
   },
 ];
 
@@ -480,5 +622,15 @@ export const initialSEOSettings: SEOSettings = {
     title: 'Contact Us | RUVERON SOLUTIONS PRIVATE LIMITED',
     description: 'Get in touch with RUVERON SOLUTIONS PRIVATE LIMITED in Vijayawada, Andhra Pradesh. Phone: +91-9985965566, Email: RUVERONSOLUTIONSPVTLTD@GMAIL.COM.',
     keywords: 'Contact Ruveron, Ruveron Vijayawada office, HR helpline, payroll inquiry',
+  },
+  careers: {
+    title: 'Careers & Job Openings | RUVERON SOLUTIONS PRIVATE LIMITED',
+    description: 'Join RUVERON SOLUTIONS PRIVATE LIMITED. Explore rewarding career opportunities in HR operations, payroll management, statutory compliance, and recruitment.',
+    keywords: 'Ruveron jobs, HR careers Vijayawada, payroll jobs Andhra Pradesh, recruitment career opportunities',
+  },
+  partners: {
+    title: 'Our Partners & Industry Associates | RUVERON SOLUTIONS PRIVATE LIMITED',
+    description: 'Discover the strategic enterprise partners and industry associates collaborating with RUVERON SOLUTIONS PRIVATE LIMITED.',
+    keywords: 'Ruveron partners, enterprise HR partners, corporate associates, workforce collaboration',
   },
 };
