@@ -238,9 +238,87 @@ export const initialServices: ServiceItem[] = [
   },
 ];
 
-export const initialTestimonials: TestimonialItem[] = [];
+export const initialTestimonials: TestimonialItem[] = [
+  {
+    id: 'test-1',
+    name: 'Kalyan Ram',
+    designation: 'VP Human Resources',
+    company: 'Vanguard Tech Solutions',
+    testimonial: 'Ruveron Solutions transformed our IT contract staffing and monthly payroll computational accuracy. Their execution speed and pan-India compliance expertise are truly unmatched.',
+    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80',
+    status: 'published',
+    createdAt: '2026-10-01',
+  },
+  {
+    id: 'test-2',
+    name: 'Dr. Sunitha Reddy',
+    designation: 'Director Operations',
+    company: 'Apex Health Systems',
+    testimonial: "Their statutory compliance health checks and hospital medical staff payroll processing have given us complete legal peace of mind and operational transparency.",
+    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
+    status: 'published',
+    createdAt: '2026-10-01',
+  },
+  {
+    id: 'test-3',
+    name: 'Murali Krishna',
+    designation: 'General Manager HR',
+    company: 'Coastal Manufacturing Ltd',
+    testimonial: 'Factory floor labor compliance and flexi-staffing managed with zero operational downtime. Ruveron is a true strategic partner for enterprise manufacturing.',
+    photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80',
+    status: 'published',
+    createdAt: '2026-10-02',
+  },
+  {
+    id: 'test-4',
+    name: 'Srinivas Rao',
+    designation: 'Head of People Ops',
+    company: 'Deccan Logistics Group',
+    testimonial: "Deccan Logistics expanded across AP & Telangana effortlessly thanks to Ruveron's rapid warehouse manpower deployment and digital attendance integration.",
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+    status: 'published',
+    createdAt: '2026-10-03',
+  },
+];
 
-export const initialTeam: TeamItem[] = [];
+export const initialTeam: TeamItem[] = [
+  {
+    id: 'team-1',
+    name: 'K. Madhusudhan Rao',
+    designation: 'Managing Director & Founder',
+    department: 'Executive Leadership',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    linkedin: 'https://linkedin.com',
+    status: 'published',
+  },
+  {
+    id: 'team-2',
+    name: 'P. Swathi',
+    designation: 'Director - HR Operations & Payroll',
+    department: 'HR Operations',
+    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+    linkedin: 'https://linkedin.com',
+    status: 'published',
+  },
+  {
+    id: 'team-3',
+    name: 'R. Venkatesh',
+    designation: 'Head - Statutory Compliance & Legal',
+    department: 'Statutory Compliance',
+    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80',
+    linkedin: 'https://linkedin.com',
+    status: 'published',
+  },
+  {
+    id: 'team-4',
+    name: 'M. Lakshmi Narayana',
+    designation: 'Head - Talent Acquisition & Staffing',
+    department: 'Recruitment Services',
+    photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+    linkedin: 'https://linkedin.com',
+    status: 'published',
+  },
+];
 
 export const initialMedia: MediaItem[] = [
   {

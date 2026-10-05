@@ -29,7 +29,10 @@ export const Navbar: React.FC = () => {
     { name: 'About Us', path: '/about' },
     { name: 'Solutions', path: '/solutions' },
     { name: 'Services', path: '/services' },
-    { name: 'Partners', path: '/partners' },
+    { name: 'Our Partners', path: '/partners' },
+    { name: 'Our Clients', path: '/clients' },
+    { name: 'Testimonials', path: '/testimonials' },
+    { name: 'Our Team', path: '/team' },
     { name: 'Careers', path: '/careers' },
     { name: 'Contact Us', path: '/contact' },
   ];

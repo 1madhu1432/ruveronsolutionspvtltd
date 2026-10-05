@@ -15,6 +15,8 @@ import { ContactPage } from './pages/public/ContactPage';
 import { CareersPage } from './pages/public/CareersPage';
 import { PartnersPage } from './pages/public/PartnersPage';
 import { ClientsPage } from './pages/public/ClientsPage';
+import { TestimonialsPage } from './pages/public/TestimonialsPage';
+import { TeamPage } from './pages/public/TeamPage';
 
 // Admin Pages
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
@@ -63,6 +65,8 @@ export const App: React.FC = () => {
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/partners" element={<PartnersPage />} />
               <Route path="/clients" element={<ClientsPage />} />
+              <Route path="/testimonials" element={<TestimonialsPage />} />
+              <Route path="/team" element={<TeamPage />} />
               <Route path="/careers" element={<CareersPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>

@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   Handshake,
+  Building2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../common/Logo';
@@ -38,6 +39,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen
     { name: 'Lead Management', path: '/admin/leads', icon: <UserCheck className="w-4 h-4 text-cyan-400" />, badge: 'Leads' },
     { name: 'Careers & Jobs', path: '/admin/careers', icon: <Briefcase className="w-4 h-4 text-emerald-400" />, badge: newAppsCount > 0 ? `${newAppsCount} Apps` : undefined },
     { name: 'Our Partners', path: '/admin/partners', icon: <Handshake className="w-4 h-4 text-amber-400" /> },
+    { name: 'Our Clients', path: '/admin/clients', icon: <Building2 className="w-4 h-4 text-cyan-400" /> },
     { name: 'Home Content', path: '/admin/home-content', icon: <Home className="w-4 h-4" /> },
     { name: 'About Us', path: '/admin/about-content', icon: <Info className="w-4 h-4" /> },
     { name: 'Solutions', path: '/admin/solutions', icon: <Layers className="w-4 h-4" /> },
