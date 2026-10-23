@@ -16,6 +16,10 @@ import {
   LogOut,
   Handshake,
   Building2,
+  MapPin,
+  GraduationCap,
+  Palette,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../common/Logo';
@@ -30,13 +34,17 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-  const { jobApplications } = useData();
+  const { jobApplications, locations, trainingPrograms, trainingEnrollments, logs } = useData();
 
   const newAppsCount = jobApplications.filter((a) => a.status === 'New').length;
+  const activeLocationsCount = locations.filter((l) => l.status === 'Active').length;
+  const newEnrollmentsCount = trainingEnrollments.filter((e) => e.status === 'New').length;
 
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
     { name: 'Lead Management', path: '/admin/leads', icon: <UserCheck className="w-4 h-4 text-cyan-400" />, badge: 'Leads' },
+    { name: 'Locations & States', path: '/admin/locations', icon: <MapPin className="w-4 h-4 text-rose-400" />, badge: `${activeLocationsCount}` },
+    { name: 'Skill Training', path: '/admin/training', icon: <GraduationCap className="w-4 h-4 text-emerald-400" />, badge: newEnrollmentsCount > 0 ? `${newEnrollmentsCount} New` : `${trainingPrograms.length}` },
     { name: 'Careers & Jobs', path: '/admin/careers', icon: <Briefcase className="w-4 h-4 text-emerald-400" />, badge: newAppsCount > 0 ? `${newAppsCount} Apps` : undefined },
     { name: 'Our Partners', path: '/admin/partners', icon: <Handshake className="w-4 h-4 text-amber-400" /> },
     { name: 'Our Clients', path: '/admin/clients', icon: <Building2 className="w-4 h-4 text-cyan-400" /> },
@@ -48,7 +56,9 @@ export const AdminSidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen
     { name: 'Team', path: '/admin/team', icon: <Users className="w-4 h-4" /> },
     { name: 'Media Library', path: '/admin/media', icon: <ImageIcon className="w-4 h-4" /> },
     { name: 'Contact Info', path: '/admin/contact', icon: <Phone className="w-4 h-4" /> },
+    { name: 'Logo & Branding', path: '/admin/branding', icon: <Palette className="w-4 h-4 text-cyan-400" /> },
     { name: 'Basic SEO', path: '/admin/seo', icon: <Search className="w-4 h-4" /> },
+    { name: 'System Logs', path: '/admin/logs', icon: <FileText className="w-4 h-4 text-purple-400" />, badge: `${logs.length}` },
     { name: 'Settings', path: '/admin/settings', icon: <Settings className="w-4 h-4" /> },
   ];
 

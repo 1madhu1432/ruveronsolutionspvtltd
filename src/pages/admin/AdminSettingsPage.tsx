@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { Settings, RefreshCw, AlertTriangle, ShieldCheck, Database } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Settings,
+  RefreshCw,
+  AlertTriangle,
+  ShieldCheck,
+  Database,
+  Palette,
+  Sparkles,
+} from 'lucide-react';
 import { useData } from '../../context/DataContext';
+import { Logo } from '../../components/common/Logo';
 
 export const AdminSettingsPage: React.FC = () => {
-  const { resetToDefaults, leads, solutions, services } = useData();
+  const { resetToDefaults, leads, solutions, services, companyInfo } = useData();
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
@@ -34,6 +44,52 @@ export const AdminSettingsPage: React.FC = () => {
           <span>{resetMessage}</span>
         </div>
       )}
+
+      {/* Logo & Corporate Branding Section */}
+      <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-base flex items-center gap-2">
+                <span>Company Logo & Branding</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                  {companyInfo.logoType === 'custom' ? 'Custom Image Active' : 'Vector Emblem Active'}
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Change website logo, upload image files, or customize tagline and dimensions.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/admin/branding"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs uppercase tracking-wider transition flex items-center gap-1.5 shadow-md shadow-cyan-500/20 shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Open Logo Controls</span>
+          </Link>
+        </div>
+
+        <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Active Logo Preview:
+            </div>
+            <div className="p-3 bg-slate-950 rounded-lg inline-block border border-slate-800">
+              <Logo size="md" />
+            </div>
+          </div>
+
+          <div className="text-xs text-slate-400 space-y-1 sm:text-right">
+            <div><strong>Company:</strong> {companyInfo.companyName}</div>
+            <div className="text-[11px] text-slate-500"><strong>Tagline:</strong> {companyInfo.tagline}</div>
+          </div>
+        </div>
+      </div>
 
       {/* Storage Diagnostics */}
       <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">

@@ -50,6 +50,15 @@ export interface CompanyInfo {
   phone: string;
   email: string;
   mapsIframeUrl?: string;
+  enableMapLocation?: boolean;
+  mapHeading?: string;
+  mapSubheading?: string;
+  enablePublicLocations?: boolean;
+  logoUrl?: string;
+  logoDarkUrl?: string;
+  logoType?: 'custom' | 'emblem';
+  logoHeight?: number;
+  showLogoTagline?: boolean;
 }
 
 export interface HomeContent {
@@ -86,6 +95,21 @@ export interface SolutionItem {
   description: string;
   benefits: string[];
   iconName: string;
+  imageUrl?: string;
+  status: 'published' | 'draft';
+  updatedAt: string;
+}
+
+export interface SolutionProject {
+  id: string;
+  title: string;
+  sector: string;
+  clientName?: string;
+  imageUrl: string;
+  description: string;
+  bullets: string[];
+  solutionId?: string;
+  iconType?: string;
   status: 'published' | 'draft';
   updatedAt: string;
 }
@@ -97,6 +121,7 @@ export interface ServiceItem {
   shortDesc: string;
   features: string[];
   iconName: string;
+  imageUrl?: string;
   status: 'published' | 'draft';
   updatedAt: string;
 }
@@ -203,4 +228,77 @@ export interface SEOSettings {
   careers: SEOPageData;
   partners: SEOPageData;
   clients: SEOPageData;
+}
+
+export interface LocationItem {
+  id: string;
+  state: string;
+  district: string;
+  isHQ?: boolean;
+  status: 'Active' | 'Inactive';
+  createdAt: string;
+}
+
+export interface TrainingProgramItem {
+  id: string;
+  title: string;
+  category: string;
+  duration: string;
+  mode: 'Offline' | 'Online' | 'Hybrid';
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Diploma';
+  imageUrl: string;
+  description: string;
+  modules: string[];
+  certification: string;
+  eligibility: string;
+  placementAssistance: boolean;
+  upcomingBatchDate?: string;
+  fee?: string;
+  status: 'published' | 'draft';
+  updatedAt: string;
+}
+
+export interface TrainingEnrollmentItem {
+  id: string;
+  programId: string;
+  programTitle: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  qualification: string;
+  city: string;
+  state?: string;
+  message?: string;
+  enrolledAt: string;
+  status: 'New' | 'Contacted' | 'Enrolled' | 'Completed';
+}
+
+export type LogSeverity = 'info' | 'success' | 'warning' | 'error';
+
+export type LogCategory =
+  | 'Leads'
+  | 'Locations'
+  | 'Branding'
+  | 'Training'
+  | 'Careers'
+  | 'Partners'
+  | 'Clients'
+  | 'Solutions'
+  | 'Services'
+  | 'Contact'
+  | 'Auth'
+  | 'System'
+  | 'Data';
+
+export interface SystemLogItem {
+  id: string;
+  timestamp: string; // ISO string
+  action: string;
+  category: LogCategory;
+  severity: LogSeverity;
+  user: string;
+  details: string;
+  entityId?: string;
+  metadata?: Record<string, any>;
+  ipAddress?: string;
 }

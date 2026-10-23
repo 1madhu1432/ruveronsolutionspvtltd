@@ -2,14 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
-  ShieldCheck,
-  Award,
-  TrendingUp,
   CheckCircle2,
   Phone,
   Mail,
   MapPin,
-  Sparkles,
   ChevronRight,
   UserPlus,
   Clock,
@@ -20,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SEOHead } from '../../components/common/SEOHead';
+import { HeroSection } from '../../components/home/HeroSection';
 
 export const HomePage: React.FC = () => {
   const { homeContent, companyInfo, services, solutions } = useData();
@@ -47,151 +44,9 @@ export const HomePage: React.FC = () => {
       <SEOHead page="home" />
 
       {/* ==================================================
-          SECTION 2: HERO SECTION
+          HERO SECTION: High-Impact Cyber Corporate Landing
           ================================================== */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-28 pb-20 bg-slate-950 overflow-hidden">
-        {/* Background Gradients & Glows */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-ruveron-royal/30 via-ruveron-cyan/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              {/* Corporate Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 backdrop-blur-md shadow-lg">
-                <Sparkles className="w-4 h-4 text-ruveron-cyan animate-pulse" />
-                <span className="text-xs font-semibold text-slate-200 tracking-wide">
-                  Corporate HR & Payroll Excellence
-                </span>
-              </div>
-
-              {/* Main Heading */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] font-sans">
-                {homeContent.heroHeading}
-              </h1>
-
-              {/* Supporting Text */}
-              <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-2xl">
-                {homeContent.heroSubtitle}
-              </p>
-
-              {/* Hero CTA Buttons */}
-              <div className="pt-4 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/contact"
-                  className="px-7 py-4 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white font-bold text-base shadow-xl shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 group"
-                >
-                  <span>{homeContent.heroPrimaryBtnText}</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-
-                <Link
-                  to="/services"
-                  className="px-7 py-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 font-semibold text-base border border-slate-700/80 shadow-md hover:border-slate-500 transition-all flex items-center gap-2"
-                >
-                  <span>{homeContent.heroSecondaryBtnText}</span>
-                  <ChevronRight className="w-5 h-5 text-slate-400" />
-                </Link>
-              </div>
-
-              {/* Trust Badges */}
-              <div className="pt-8 border-t border-slate-800/80 grid grid-cols-3 gap-4 text-slate-400 text-xs">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span>100% Statutory Compliance</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-blue-400 shrink-0" />
-                  <span>Zero-Defect Payroll</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-teal-400 shrink-0" />
-                  <span>Pan-India Execution</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Hero Visual Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden p-1 bg-gradient-to-b from-cyan-500/30 via-blue-600/20 to-transparent shadow-2xl">
-                <div className="bg-slate-900/95 rounded-[22px] p-6 sm:p-8 space-y-6 backdrop-blur-xl border border-slate-800">
-                  {/* Visual Header */}
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-rose-500" />
-                      <div className="w-3 h-3 rounded-full bg-amber-500" />
-                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    </div>
-                    <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-wider font-semibold">
-                      Workforce Execution Engine
-                    </span>
-                  </div>
-
-                  {/* Feature Pill Showcase */}
-                  <div className="space-y-3">
-                    <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center text-cyan-400">
-                          <DollarSign className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-white">Payroll Processing</div>
-                          <div className="text-xs text-slate-400">Automated Tax, PF & ESI Compute</div>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-mono font-medium">
-                        Verified
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-cyan-600/20 flex items-center justify-center text-cyan-400">
-                          <UserPlus className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-white">Talent Acquisition</div>
-                          <div className="text-xs text-slate-400">High-Precision Candidate Matching</div>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs font-mono font-medium">
-                        Active
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-teal-600/20 flex items-center justify-center text-teal-400">
-                          <FileCheck className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold text-white">Statutory Governance</div>
-                          <div className="text-xs text-slate-400">100% Legal & Labor Law Adherence</div>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-mono font-medium">
-                        Compliant
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Summary Banner */}
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-ruveron-navy to-ruveron-blue border border-cyan-500/30 text-center">
-                    <div className="text-xs text-cyan-300 font-semibold uppercase tracking-wider">
-                      Strategic Corporate Growth
-                    </div>
-                    <div className="text-sm text-white font-medium mt-1">
-                      Integrated People, Process & Technology
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* ==================================================
           SECTION 3: COMPANY INTRODUCTION (WHO WE ARE)
@@ -392,19 +247,33 @@ export const HomePage: React.FC = () => {
             {solutions.slice(0, 3).map((sol) => (
               <div
                 key={sol.id}
-                className="bg-white rounded-2xl p-8 border border-slate-200/90 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                className="group bg-white rounded-2xl p-8 border border-slate-200/90 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
+                {sol.imageUrl && (
+                  <div className="h-40 -mx-8 -mt-8 mb-6 rounded-t-2xl overflow-hidden bg-slate-900 relative">
+                    <img
+                      src={sol.imageUrl}
+                      alt={sol.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent" />
+                  </div>
+                )}
                 <div className="space-y-4">
                   <div className="text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-3 py-1 rounded-md inline-block">
                     {sol.category}
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">{sol.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{sol.description}</p>
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-cyan-800 transition-colors">
+                    {sol.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
+                    {sol.description}
+                  </p>
                   <div className="space-y-2 pt-3">
                     {sol.benefits.slice(0, 3).map((ben, i) => (
                       <div key={i} className="text-xs text-slate-700 flex items-center gap-2 font-medium">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>{ben}</span>
+                        <span className="line-clamp-1">{ben}</span>
                       </div>
                     ))}
                   </div>
@@ -412,7 +281,7 @@ export const HomePage: React.FC = () => {
                 <div className="pt-6 mt-6 border-t border-slate-100">
                   <Link
                     to="/solutions"
-                    className="text-xs font-bold uppercase tracking-wider text-ruveron-navy hover:text-ruveron-royal inline-flex items-center gap-1"
+                    className="text-xs font-bold uppercase tracking-wider text-ruveron-navy hover:text-ruveron-royal inline-flex items-center gap-1 font-outfit"
                   >
                     <span>View Solution Details</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -613,17 +482,29 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Right Map Preview Container */}
-            <div className="lg:col-span-7 rounded-2xl overflow-hidden shadow-xl border border-slate-200 h-[320px] bg-slate-200">
-              <iframe
-                title="RUVERON Solutions Office Map"
-                src={companyInfo.mapsIframeUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+            <div className="lg:col-span-7 rounded-2xl overflow-hidden shadow-xl border border-slate-200 min-h-[320px] bg-slate-100 flex items-center justify-center">
+              {companyInfo.enableMapLocation !== false && companyInfo.mapsIframeUrl ? (
+                <iframe
+                  title="RUVERON Solutions Office Map"
+                  src={companyInfo.mapsIframeUrl}
+                  width="100%"
+                  height="100%"
+                  className="min-h-[320px] w-full border-0"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <div className="p-8 text-center space-y-3">
+                  <div className="w-14 h-14 rounded-2xl bg-cyan-100 text-ruveron-royal flex items-center justify-center mx-auto shadow-inner">
+                    <Building2 className="w-7 h-7" />
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-900">{companyInfo.companyName}</h4>
+                  <p className="text-xs text-slate-600 max-w-md mx-auto">{companyInfo.fullAddress}</p>
+                  <p className="text-[11px] font-semibold text-slate-400">Headquarters & Corporate Operations</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

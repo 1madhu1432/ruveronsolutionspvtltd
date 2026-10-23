@@ -17,12 +17,18 @@ import type {
   ApplicationStatus,
   PartnerItem,
   ClientItem,
+  LocationItem,
+  SolutionProject,
+  TrainingProgramItem,
+  TrainingEnrollmentItem,
+  SystemLogItem,
 } from '../types';
 import {
   initialCompanyInfo,
   initialHomeContent,
   initialAboutContent,
   initialSolutions,
+  initialProjects,
   initialServices,
   initialTestimonials,
   initialTeam,
@@ -33,7 +39,10 @@ import {
   initialJobApplications,
   initialPartners,
   initialClients,
+  initialSystemLogs,
 } from '../data/initialData';
+import { initialLocations } from '../data/locations';
+import { initialTrainingPrograms, initialTrainingEnrollments } from '../data/trainingData';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 
 interface DataContextType {
@@ -48,11 +57,26 @@ interface DataContextType {
   addSolution: (solution: Omit<SolutionItem, 'id' | 'updatedAt'>) => void;
   updateSolution: (id: string, solution: Partial<SolutionItem>) => void;
   deleteSolution: (id: string) => void;
+
+  projects: SolutionProject[];
+  addProject: (project: Omit<SolutionProject, 'id' | 'updatedAt'>) => void;
+  updateProject: (id: string, project: Partial<SolutionProject>) => void;
+  deleteProject: (id: string) => void;
   
   services: ServiceItem[];
   addService: (service: Omit<ServiceItem, 'id' | 'updatedAt'>) => void;
   updateService: (id: string, service: Partial<ServiceItem>) => void;
   deleteService: (id: string) => void;
+
+  trainingPrograms: TrainingProgramItem[];
+  addTrainingProgram: (item: Omit<TrainingProgramItem, 'id' | 'updatedAt'>) => void;
+  updateTrainingProgram: (id: string, item: Partial<TrainingProgramItem>) => void;
+  deleteTrainingProgram: (id: string) => void;
+
+  trainingEnrollments: TrainingEnrollmentItem[];
+  addTrainingEnrollment: (item: Omit<TrainingEnrollmentItem, 'id' | 'enrolledAt' | 'status'>) => void;
+  updateEnrollmentStatus: (id: string, status: TrainingEnrollmentItem['status']) => void;
+  deleteTrainingEnrollment: (id: string) => void;
 
   testimonials: TestimonialItem[];
   addTestimonial: (item: Omit<TestimonialItem, 'id' | 'createdAt'>) => void;
@@ -100,12 +124,28 @@ interface DataContextType {
     serviceOrSolutionName?: string;
   }) => LeadItem;
   addLeadDirect: (lead: Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>) => void;
+  bulkImportLeads: (items: Array<Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>>) => number;
   updateLeadStatus: (id: string, newStatus: LeadStatus) => void;
   addLeadNote: (id: string, text: string, author?: string) => void;
   deleteLead: (id: string) => void;
 
   seoSettings: SEOSettings;
   updateSEOPage: (page: keyof SEOSettings, data: Partial<SEOPageData>) => void;
+
+  locations: LocationItem[];
+  addLocation: (location: Omit<LocationItem, 'id' | 'createdAt'>) => void;
+  updateLocation: (id: string, location: Partial<LocationItem>) => void;
+  deleteLocation: (id: string) => void;
+  toggleLocationStatus: (id: string) => void;
+  enableAllLocations: () => void;
+  disableAllLocations: () => void;
+  setLocationsStatusByState: (state: string, status: 'Active' | 'Inactive') => void;
+  toggleMapLocationDisplay: () => void;
+  resetLocationsToDefault: () => void;
+
+  logs: SystemLogItem[];
+  addLog: (log: Omit<SystemLogItem, 'id' | 'timestamp'>) => void;
+  clearLogs: () => void;
   
   resetToDefaults: () => void;
 }
@@ -124,6 +164,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
   const [solutions, setSolutionsState] = useState<SolutionItem[]>(() =>
     getStorageItem('ruveron_solutions', initialSolutions)
+  );
+  const [projects, setProjectsState] = useState<SolutionProject[]>(() =>
+    getStorageItem('ruveron_solution_projects', initialProjects)
   );
   const [services, setServicesState] = useState<ServiceItem[]>(() =>
     getStorageItem('ruveron_services', initialServices)
@@ -155,13 +198,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [seoSettings, setSEOSettingsState] = useState<SEOSettings>(() =>
     getStorageItem('ruveron_seo_settings', initialSEOSettings)
   );
+  const [locations, setLocationsState] = useState<LocationItem[]>(() =>
+    getStorageItem('ruveron_locations', initialLocations)
+  );
+  const [trainingPrograms, setTrainingProgramsState] = useState<TrainingProgramItem[]>(() =>
+    getStorageItem('ruveron_training_programs', initialTrainingPrograms)
+  );
+  const [trainingEnrollments, setTrainingEnrollmentsState] = useState<TrainingEnrollmentItem[]>(() =>
+    getStorageItem('ruveron_training_enrollments', initialTrainingEnrollments)
+  );
+  const [logs, setLogsState] = useState<SystemLogItem[]>(() =>
+    getStorageItem('ruveron_system_logs', initialSystemLogs)
+  );
 
   // Sync state to localStorage
   useEffect(() => setStorageItem('ruveron_company_info', companyInfo), [companyInfo]);
   useEffect(() => setStorageItem('ruveron_home_content', homeContent), [homeContent]);
   useEffect(() => setStorageItem('ruveron_about_content', aboutContent), [aboutContent]);
   useEffect(() => setStorageItem('ruveron_solutions', solutions), [solutions]);
+  useEffect(() => setStorageItem('ruveron_solution_projects', projects), [projects]);
   useEffect(() => setStorageItem('ruveron_services', services), [services]);
+  useEffect(() => setStorageItem('ruveron_training_programs', trainingPrograms), [trainingPrograms]);
+  useEffect(() => setStorageItem('ruveron_training_enrollments', trainingEnrollments), [trainingEnrollments]);
   useEffect(() => setStorageItem('ruveron_testimonials', testimonials), [testimonials]);
   useEffect(() => setStorageItem('ruveron_team', team), [team]);
   useEffect(() => setStorageItem('ruveron_media', media), [media]);
@@ -171,9 +229,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => setStorageItem('ruveron_clients', clients), [clients]);
   useEffect(() => setStorageItem('ruveron_leads', leads), [leads]);
   useEffect(() => setStorageItem('ruveron_seo_settings', seoSettings), [seoSettings]);
+  useEffect(() => setStorageItem('ruveron_locations', locations), [locations]);
+  useEffect(() => setStorageItem('ruveron_system_logs', logs), [logs]);
+
+  const addLog = (logData: Omit<SystemLogItem, 'id' | 'timestamp'>) => {
+    const newLog: SystemLogItem = {
+      ...logData,
+      id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+    };
+    setLogsState((prev) => [newLog, ...prev]);
+  };
+
+  const clearLogs = () => {
+    setLogsState([]);
+    setStorageItem('ruveron_system_logs', []);
+  };
 
   const updateCompanyInfo = (data: Partial<CompanyInfo>) => {
     setCompanyInfoState((prev) => ({ ...prev, ...data }));
+    addLog({
+      action: data.logoUrl || data.logoType ? 'Logo & Branding Updated' : 'Company Info Updated',
+      category: data.logoUrl || data.logoType ? 'Branding' : 'Contact',
+      severity: 'info',
+      user: 'Admin',
+      details: data.logoUrl
+        ? 'Updated company logo image'
+        : 'Saved corporate contact/company details',
+    });
   };
 
   const updateHomeContent = (data: Partial<HomeContent>) => {
@@ -201,6 +284,29 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteSolution = (id: string) => {
     setSolutionsState((prev) => prev.filter((sol) => sol.id !== id));
+  };
+
+  const addProject = (item: Omit<SolutionProject, 'id' | 'updatedAt'>) => {
+    const newItem: SolutionProject = {
+      ...item,
+      id: `proj-${Date.now()}`,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    setProjectsState((prev) => [newItem, ...prev]);
+  };
+
+  const updateProject = (id: string, item: Partial<SolutionProject>) => {
+    setProjectsState((prev) =>
+      prev.map((proj) =>
+        proj.id === id
+          ? { ...proj, ...item, updatedAt: new Date().toISOString().split('T')[0] }
+          : proj
+      )
+    );
+  };
+
+  const deleteProject = (id: string) => {
+    setProjectsState((prev) => prev.filter((proj) => proj.id !== id));
   };
 
   const addService = (item: Omit<ServiceItem, 'id' | 'updatedAt'>) => {
@@ -424,6 +530,39 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLeadsState((prev) => [newLead, ...prev]);
   };
 
+  const bulkImportLeads = (
+    items: Array<Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>>
+  ): number => {
+    const now = new Date().toISOString();
+    const createdLeads: LeadItem[] = items.map((item, index) => {
+      const leadId = `LEAD-IMP-${Math.floor(1000 + Math.random() * 9000)}-${index + 1}`;
+      return {
+        ...item,
+        id: leadId,
+        createdAt: now,
+        updatedAt: now,
+        notes: [
+          {
+            id: `note-${Date.now()}-${index}`,
+            date: now,
+            author: 'CSV Importer',
+            text: 'Bulk imported into Ruveron Lead Engine.',
+          },
+        ],
+        history: [
+          {
+            id: `hist-${Date.now()}-${index}`,
+            date: now,
+            action: `Lead imported with status ${item.status}`,
+          },
+        ],
+      };
+    });
+
+    setLeadsState((prev) => [...createdLeads, ...prev]);
+    return createdLeads.length;
+  };
+
   const updateLeadStatus = (id: string, newStatus: LeadStatus) => {
     const now = new Date().toISOString();
     setLeadsState((prev) =>
@@ -480,11 +619,128 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
+  const addLocation = (locData: Omit<LocationItem, 'id' | 'createdAt'>) => {
+    const newLoc: LocationItem = {
+      ...locData,
+      id: `loc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      createdAt: new Date().toISOString(),
+    };
+    setLocationsState((prev) => [newLoc, ...prev]);
+  };
+
+  const updateLocation = (id: string, updated: Partial<LocationItem>) => {
+    setLocationsState((prev) =>
+      prev.map((loc) => (loc.id === id ? { ...loc, ...updated } : loc))
+    );
+  };
+
+  const deleteLocation = (id: string) => {
+    setLocationsState((prev) => prev.filter((loc) => loc.id !== id));
+  };
+
+  const toggleLocationStatus = (id: string) => {
+    setLocationsState((prev) =>
+      prev.map((loc) =>
+        loc.id === id
+          ? { ...loc, status: loc.status === 'Active' ? 'Inactive' : 'Active' }
+          : loc
+      )
+    );
+  };
+
+  const enableAllLocations = () => {
+    setLocationsState((prev) => prev.map((loc) => ({ ...loc, status: 'Active' as const })));
+  };
+
+  const disableAllLocations = () => {
+    setLocationsState((prev) => prev.map((loc) => ({ ...loc, status: 'Inactive' as const })));
+  };
+
+  const setLocationsStatusByState = (state: string, status: 'Active' | 'Inactive') => {
+    setLocationsState((prev) =>
+      prev.map((loc) => (loc.state === state ? { ...loc, status } : loc))
+    );
+  };
+
+  const toggleMapLocationDisplay = () => {
+    setCompanyInfoState((prev) => {
+      const updated = {
+        ...prev,
+        enableMapLocation: prev.enableMapLocation === false ? true : false,
+      };
+      setStorageItem('ruveron_company_info', updated);
+      return updated;
+    });
+  };
+
+  const resetLocationsToDefault = () => {
+    setLocationsState(initialLocations);
+    setStorageItem('ruveron_locations', initialLocations);
+  };
+
+  const addTrainingProgram = (item: Omit<TrainingProgramItem, 'id' | 'updatedAt'>) => {
+    const newItem: TrainingProgramItem = {
+      ...item,
+      id: `tr-${Date.now()}`,
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    setTrainingProgramsState((prev) => [newItem, ...prev]);
+  };
+
+  const updateTrainingProgram = (id: string, item: Partial<TrainingProgramItem>) => {
+    setTrainingProgramsState((prev) =>
+      prev.map((tr) =>
+        tr.id === id
+          ? { ...tr, ...item, updatedAt: new Date().toISOString().split('T')[0] }
+          : tr
+      )
+    );
+  };
+
+  const deleteTrainingProgram = (id: string) => {
+    setTrainingProgramsState((prev) => prev.filter((tr) => tr.id !== id));
+  };
+
+  const addTrainingEnrollment = (
+    item: Omit<TrainingEnrollmentItem, 'id' | 'enrolledAt' | 'status'>
+  ) => {
+    const newEnr: TrainingEnrollmentItem = {
+      ...item,
+      id: `enr-${Date.now()}`,
+      enrolledAt: new Date().toISOString(),
+      status: 'New',
+    };
+    setTrainingEnrollmentsState((prev) => [newEnr, ...prev]);
+
+    // Automatically bridge candidate to the central Leads Engine
+    addLeadFromForm({
+      fullName: item.fullName,
+      email: item.email,
+      phone: item.phone,
+      company: item.qualification ? `Candidate (${item.qualification})` : 'Individual Trainee',
+      location: [item.city, item.state].filter(Boolean).join(', ') || 'Not Specified',
+      requirement: `Applied for Skill Program: "${item.programTitle}". Message: ${item.message || 'Ready for batch enrollment.'}`,
+      leadType: 'Service',
+      serviceOrSolutionName: `Skill Training: ${item.programTitle}`,
+    });
+  };
+
+  const updateEnrollmentStatus = (id: string, status: TrainingEnrollmentItem['status']) => {
+    setTrainingEnrollmentsState((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, status } : e))
+    );
+  };
+
+  const deleteTrainingEnrollment = (id: string) => {
+    setTrainingEnrollmentsState((prev) => prev.filter((e) => e.id !== id));
+  };
+
   const resetToDefaults = () => {
     setCompanyInfoState(initialCompanyInfo);
     setHomeContentState(initialHomeContent);
     setAboutContentState(initialAboutContent);
     setSolutionsState(initialSolutions);
+    setProjectsState(initialProjects);
     setServicesState(initialServices);
     setTestimonialsState(initialTestimonials);
     setTeamState(initialTeam);
@@ -495,6 +751,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setClientsState(initialClients);
     setLeadsState(initialLeads);
     setSEOSettingsState(initialSEOSettings);
+    setLocationsState(initialLocations);
+    setTrainingProgramsState(initialTrainingPrograms);
+    setTrainingEnrollmentsState(initialTrainingEnrollments);
+    setLogsState(initialSystemLogs);
     localStorage.clear();
   };
 
@@ -511,10 +771,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addSolution,
         updateSolution,
         deleteSolution,
+        projects,
+        addProject,
+        updateProject,
+        deleteProject,
         services,
         addService,
         updateService,
         deleteService,
+        trainingPrograms,
+        addTrainingProgram,
+        updateTrainingProgram,
+        deleteTrainingProgram,
+        trainingEnrollments,
+        addTrainingEnrollment,
+        updateEnrollmentStatus,
+        deleteTrainingEnrollment,
         testimonials,
         addTestimonial,
         updateTestimonial,
@@ -545,11 +817,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         leads,
         addLeadFromForm,
         addLeadDirect,
+        bulkImportLeads,
         updateLeadStatus,
         addLeadNote,
         deleteLead,
         seoSettings,
         updateSEOPage,
+        locations,
+        addLocation,
+        updateLocation,
+        deleteLocation,
+        toggleLocationStatus,
+        enableAllLocations,
+        disableAllLocations,
+        setLocationsStatusByState,
+        toggleMapLocationDisplay,
+        resetLocationsToDefault,
+        logs,
+        addLog,
+        clearLogs,
         resetToDefaults,
       }}
     >

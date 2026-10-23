@@ -17,6 +17,7 @@ import { PartnersPage } from './pages/public/PartnersPage';
 import { ClientsPage } from './pages/public/ClientsPage';
 import { TestimonialsPage } from './pages/public/TestimonialsPage';
 import { TeamPage } from './pages/public/TeamPage';
+import { TrainingPage } from './pages/public/TrainingPage';
 
 // Admin Pages
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
@@ -27,6 +28,7 @@ import { AdminHomeContentPage } from './pages/admin/AdminHomeContentPage';
 import { AdminAboutContentPage } from './pages/admin/AdminAboutContentPage';
 import { AdminSolutionsPage } from './pages/admin/AdminSolutionsPage';
 import { AdminServicesPage } from './pages/admin/AdminServicesPage';
+import { AdminTrainingPage } from './pages/admin/AdminTrainingPage';
 import { AdminTestimonialsPage } from './pages/admin/AdminTestimonialsPage';
 import { AdminTeamPage } from './pages/admin/AdminTeamPage';
 import { AdminMediaPage } from './pages/admin/AdminMediaPage';
@@ -36,6 +38,9 @@ import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminCareersPage } from './pages/admin/AdminCareersPage';
 import { AdminPartnersPage } from './pages/admin/AdminPartnersPage';
 import { AdminClientsPage } from './pages/admin/AdminClientsPage';
+import { AdminLocationsPage } from './pages/admin/AdminLocationsPage';
+import { AdminBrandingPage } from './pages/admin/AdminBrandingPage';
+import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 
 // Public Layout Wrapper
 const PublicLayout = () => {
@@ -63,6 +68,8 @@ export const App: React.FC = () => {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/solutions" element={<SolutionsPage />} />
               <Route path="/services" element={<ServicesPage />} />
+              <Route path="/training" element={<TrainingPage />} />
+              <Route path="/skill-development" element={<TrainingPage />} />
               <Route path="/partners" element={<PartnersPage />} />
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/testimonials" element={<TestimonialsPage />} />
@@ -79,6 +86,8 @@ export const App: React.FC = () => {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="locations" element={<AdminLocationsPage />} />
+              <Route path="training" element={<AdminTrainingPage />} />
               <Route path="careers" element={<AdminCareersPage />} />
               <Route path="partners" element={<AdminPartnersPage />} />
               <Route path="clients" element={<AdminClientsPage />} />
@@ -90,7 +99,10 @@ export const App: React.FC = () => {
               <Route path="team" element={<AdminTeamPage />} />
               <Route path="media" element={<AdminMediaPage />} />
               <Route path="contact" element={<AdminContactPage />} />
+              <Route path="branding" element={<AdminBrandingPage />} />
+              <Route path="logo" element={<AdminBrandingPage />} />
               <Route path="seo" element={<AdminSEOPage />} />
+              <Route path="logs" element={<AdminLogsPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 

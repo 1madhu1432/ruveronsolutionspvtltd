@@ -8,13 +8,14 @@ import {
   XCircle,
   TrendingUp,
   ArrowRight,
+  Activity,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { LeadStatusBadge } from '../../components/ui/Badge';
 import type { LeadSource } from '../../types';
 
 export const AdminDashboardPage: React.FC = () => {
-  const { leads } = useData();
+  const { leads, logs } = useData();
 
   const totalLeads = leads.length;
   const newLeads = leads.filter((l) => l.status === 'New').length;
@@ -247,6 +248,47 @@ export const AdminDashboardPage: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Recent System Activity Logs */}
+      <div className="bg-slate-950 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <Activity className="w-5 h-5 text-purple-400" />
+            <h3 className="font-bold text-white text-base">Recent System Activity Audit Logs</h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30">
+              {logs.length} Total Logs
+            </span>
+          </div>
+          <Link
+            to="/admin/logs"
+            className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
+          >
+            <span>View All Logs</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="divide-y divide-slate-800/80">
+          {logs.slice(0, 5).map((log) => (
+            <div key={log.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-900/40 p-2 rounded-xl transition">
+              <div className="flex items-start sm:items-center gap-3">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-900 border border-slate-700 text-slate-300 shrink-0">
+                  {log.category}
+                </span>
+                <div>
+                  <span className="text-xs font-bold text-white">{log.action}</span>
+                  <p className="text-[11px] text-slate-400 truncate max-w-lg mt-0.5">{log.details}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0 text-slate-400 text-[11px] font-mono">
+                <span>{log.user}</span>
+                <span>•</span>
+                <span>{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

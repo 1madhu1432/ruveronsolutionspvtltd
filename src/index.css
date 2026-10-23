@@ -1,16 +1,23 @@
 @import "tailwindcss";
 
 @theme {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-inter: 'Inter', sans-serif;
   --color-ruveron-dark: #0a1128;
   --color-ruveron-navy: #0f172a;
   --color-ruveron-navyLight: #1e293b;
   --color-ruveron-blue: #1e40af;
   --color-ruveron-royal: #2563eb;
   --color-ruveron-cyan: #06b6d4;
+  --color-ruveron-cyanBright: #00f0ff;
   --color-ruveron-cyanLight: #e0f2fe;
   --color-ruveron-teal: #0d9488;
   --color-ruveron-accent: #38bdf8;
   --color-ruveron-gold: #f59e0b;
+}
+
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
 }
 
 html {
@@ -19,8 +26,8 @@ html {
 }
 
 body {
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: #030712;
+  color: #f8fafc;
   overflow-x: hidden;
 }
 

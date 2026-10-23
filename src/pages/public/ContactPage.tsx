@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, AlertCircle, Briefcase, Layers } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SEOHead } from '../../components/common/SEOHead';
 import type { LeadCategory } from '../../types';
+import { formatLocationLabel } from '../../data/locations';
+import { SearchableLocationSelect } from '../../components/ui/SearchableLocationSelect';
 
 export const ContactPage: React.FC = () => {
-  const { companyInfo, services, solutions, addLeadFromForm } = useData();
+  const { companyInfo, services, solutions, addLeadFromForm, locations } = useData();
+
+  const defaultLocation = useMemo(() => {
+    const hq = locations.find((l) => l.isHQ && l.status === 'Active') || locations[0];
+    return hq ? formatLocationLabel(hq) : 'Vijayawada (NTR), Andhra Pradesh (Corporate HQ)';
+  }, [locations]);
 
   const [leadType, setLeadType] = useState<LeadCategory>('Service');
   const [selectedName, setSelectedName] = useState<string>(services[0]?.name || 'Recruitment & Talent Acquisition');
+  const [customLocation, setCustomLocation] = useState('');
 
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     company: '',
-    location: '',
+    location: defaultLocation,
     requirement: '',
   });
 
@@ -46,9 +54,15 @@ export const ContactPage: React.FC = () => {
 
     setSubmitting(true);
     setTimeout(() => {
+      const finalLocation =
+        formData.location === 'Other Location' && customLocation.trim()
+          ? customLocation.trim()
+          : formData.location;
+
       // Create lead with leadType and serviceOrSolutionName
       addLeadFromForm({
         ...formData,
+        location: finalLocation,
         leadType,
         serviceOrSolutionName: selectedName,
       });
@@ -59,9 +73,10 @@ export const ContactPage: React.FC = () => {
         email: '',
         phone: '',
         company: '',
-        location: '',
+        location: defaultLocation,
         requirement: '',
       });
+      setCustomLocation('');
     }, 600);
   };
 
@@ -321,17 +336,30 @@ export const ContactPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        City / Location
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
+                        <span>City / Operating Location *</span>
+                        <span className="text-[11px] text-ruveron-royal font-semibold lowercase">Search or select from list</span>
                       </label>
-                      <input
-                        type="text"
-                        name="location"
+                      <SearchableLocationSelect
                         value={formData.location}
-                        onChange={handleChange}
-                        placeholder="e.g. Vijayawada / Hyderabad"
-                        className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-ruveron-royal focus:border-transparent outline-none transition"
+                        onChange={(val) => setFormData((prev) => ({ ...prev, location: val }))}
+                        locations={locations}
+                        theme="light"
+                        required
                       />
+
+                      {formData.location === 'Other Location' && (
+                        <div className="mt-2.5 animate-fadeIn">
+                          <input
+                            type="text"
+                            value={customLocation}
+                            onChange={(e) => setCustomLocation(e.target.value)}
+                            placeholder="Specify your city / town / district name..."
+                            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-ruveron-royal outline-none transition"
+                            required
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -371,29 +399,35 @@ export const ContactPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Embedded Map Section */}
-      <section className="py-16 bg-white border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="text-center space-y-1">
-            <h3 className="text-2xl font-bold text-slate-900">Locate Our Vijayawada Office</h3>
-            <p className="text-xs text-slate-500">
-              61-9/1-26, 2nd Lane, Kalanagar, Near Skewbridge, Krishnalanka, Vijayawada (Urban), AP 520013
-            </p>
+      {/* Embedded Map Section (Controlled via Admin) */}
+      {companyInfo.enableMapLocation !== false && (
+        <section className="py-16 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <div className="text-center space-y-1">
+              <h3 className="text-2xl font-bold text-slate-900">
+                {companyInfo.mapHeading || 'Locate Our Vijayawada Office'}
+              </h3>
+              <p className="text-xs text-slate-500 max-w-2xl mx-auto">
+                {companyInfo.mapSubheading || companyInfo.fullAddress || '61-9/1-26, 2nd Lane, Kalanagar, Near Skewbridge, Krishnalanka, Vijayawada (Urban), AP 520013'}
+              </p>
+            </div>
+            {companyInfo.mapsIframeUrl && (
+              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-lg h-[420px] bg-slate-100">
+                <iframe
+                  title="RUVERON Solutions Headquarters Map Location"
+                  src={companyInfo.mapsIframeUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
           </div>
-          <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-lg h-[420px] bg-slate-100">
-            <iframe
-              title="RUVERON Solutions Headquarters Map Location"
-              src={companyInfo.mapsIframeUrl}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen={false}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 };
