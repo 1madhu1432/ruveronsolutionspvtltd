@@ -199,6 +199,15 @@ export interface PartnerItem {
   updatedAt: string;
 }
 
+export type ClientContractStatus = 'Active' | 'Under Review' | 'On Hold' | 'Terminated' | 'Prospective';
+
+export interface ClientRemark {
+  id: string;
+  date: string;
+  author: string;
+  text: string;
+}
+
 export interface ClientItem {
   id: string;
   name: string;
@@ -209,6 +218,29 @@ export interface ClientItem {
   featuredOnHome?: boolean;
   status: 'published' | 'draft';
   updatedAt: string;
+
+  // Full Details fields
+  clientCode?: string;
+  contactPerson?: string;
+  contactDesignation?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  alternatePhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  gstin?: string;
+  pan?: string;
+  contractStatus?: ClientContractStatus;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  servicesProvided?: string[];
+  activeHeadcount?: string | number;
+  accountManager?: string;
+  billingCycle?: 'Monthly' | 'Quarterly' | 'Annual' | 'Bi-Weekly' | 'Custom';
+  remarks?: string;
+  notes?: ClientRemark[];
 }
 
 export interface SEOPageData {

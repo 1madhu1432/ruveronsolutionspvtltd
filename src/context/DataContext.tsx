@@ -111,6 +111,8 @@ interface DataContextType {
   addClient: (client: Omit<ClientItem, 'id' | 'updatedAt'>) => void;
   updateClient: (id: string, client: Partial<ClientItem>) => void;
   deleteClient: (id: string) => void;
+  addClientRemark: (clientId: string, text: string, author?: string) => void;
+  deleteClientRemark: (clientId: string, remarkId: string) => void;
 
   leads: LeadItem[];
   addLeadFromForm: (formData: {
@@ -437,22 +439,108 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addClient = (item: Omit<ClientItem, 'id' | 'updatedAt'>) => {
+    const now = new Date().toISOString().split('T')[0];
+    const initialNotes = item.notes && item.notes.length > 0
+      ? item.notes
+      : item.remarks
+      ? [
+          {
+            id: `cnote-${Date.now()}`,
+            date: now,
+            author: 'Admin',
+            text: item.remarks,
+          },
+        ]
+      : [];
+
     const newItem: ClientItem = {
       ...item,
       id: `cli-${Date.now()}`,
-      updatedAt: new Date().toISOString().split('T')[0],
+      updatedAt: now,
+      notes: initialNotes,
+      contractStatus: item.contractStatus || 'Active',
     };
     setClientsState((prev) => [newItem, ...prev]);
+    addLog({
+      action: 'Client Created',
+      category: 'Clients',
+      severity: 'info',
+      user: 'Admin',
+      details: `Added enterprise client: ${newItem.name} (${newItem.industry})`,
+      entityId: newItem.id,
+    });
   };
 
   const updateClient = (id: string, item: Partial<ClientItem>) => {
     setClientsState((prev) =>
       prev.map((c) => (c.id === id ? { ...c, ...item, updatedAt: new Date().toISOString().split('T')[0] } : c))
     );
+    addLog({
+      action: 'Client Updated',
+      category: 'Clients',
+      severity: 'info',
+      user: 'Admin',
+      details: `Updated client details for ID: ${id}`,
+      entityId: id,
+    });
+  };
+
+  const addClientRemark = (clientId: string, text: string, author = 'Admin') => {
+    const now = new Date().toISOString().split('T')[0];
+    const newRemark = {
+      id: `cnote-${Date.now()}`,
+      date: now,
+      author,
+      text,
+    };
+    setClientsState((prev) =>
+      prev.map((c) => {
+        if (c.id !== clientId) return c;
+        const updatedNotes = [newRemark, ...(c.notes || [])];
+        return {
+          ...c,
+          remarks: text,
+          notes: updatedNotes,
+          updatedAt: now,
+        };
+      })
+    );
+    addLog({
+      action: 'Client Remark Added',
+      category: 'Clients',
+      severity: 'info',
+      user: author,
+      details: `Logged remark on client: "${text.slice(0, 40)}${text.length > 40 ? '...' : ''}"`,
+      entityId: clientId,
+    });
+  };
+
+  const deleteClientRemark = (clientId: string, remarkId: string) => {
+    setClientsState((prev) =>
+      prev.map((c) => {
+        if (c.id !== clientId) return c;
+        const updatedNotes = (c.notes || []).filter((n) => n.id !== remarkId);
+        return {
+          ...c,
+          remarks: updatedNotes[0]?.text || '',
+          notes: updatedNotes,
+          updatedAt: new Date().toISOString().split('T')[0],
+        };
+      })
+    );
   };
 
   const deleteClient = (id: string) => {
+    const target = clients.find((c) => c.id === id);
     setClientsState((prev) => prev.filter((c) => c.id !== id));
+    addLog({
+      action: 'Client Deleted',
+      category: 'Clients',
+      severity: 'warning',
+      user: 'Admin',
+      details: `Deleted client: ${target?.name || id}`,
+      entityId: id,
+    });
   };
 
   const addLeadFromForm = (formData: {
@@ -814,6 +902,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addClient,
         updateClient,
         deleteClient,
+        addClientRemark,
+        deleteClientRemark,
         leads,
         addLeadFromForm,
         addLeadDirect,
