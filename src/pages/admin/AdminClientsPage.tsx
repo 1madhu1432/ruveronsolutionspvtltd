@@ -23,6 +23,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
+import { PhotoUploader } from '../../components/ui/PhotoUploader';
 import type { ClientItem, ClientContractStatus } from '../../types';
 
 const COMMON_SERVICES = [
@@ -1324,28 +1325,26 @@ export const AdminClientsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Logo URL *</label>
-                    <input
-                      type="url"
-                      value={form.logoUrl}
-                      onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Official Website URL</label>
-                    <input
-                      type="url"
-                      value={form.websiteUrl}
-                      onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
-                      placeholder="https://clientdomain.com"
-                      className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-500"
-                    />
-                  </div>
+                <div>
+                  <PhotoUploader
+                    value={form.logoUrl}
+                    onChange={(newLogo) => setForm({ ...form, logoUrl: newLogo })}
+                    label="Client Company Logo (Upload Photo)"
+                    aspect="square"
+                    required
+                    helpText="Upload PNG, SVG, or JPG corporate logo (up to 5MB)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Official Website URL</label>
+                  <input
+                    type="url"
+                    value={form.websiteUrl}
+                    onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })}
+                    placeholder="https://clientdomain.com"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-500"
+                  />
                 </div>
 
                 <div>

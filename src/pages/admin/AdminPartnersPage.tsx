@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Handshake, Plus, Edit2, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import { useData } from '../../context/DataContext';
+import { PhotoUploader } from '../../components/ui/PhotoUploader';
 import type { PartnerItem } from '../../types';
 
 export const AdminPartnersPage: React.FC = () => {
@@ -218,14 +219,13 @@ export const AdminPartnersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Logo Image URL *</label>
-                <input
-                  type="url"
+                <PhotoUploader
                   value={form.logoUrl}
-                  onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-white outline-none"
+                  onChange={(newLogo) => setForm({ ...form, logoUrl: newLogo })}
+                  label="Partner Company Logo (Upload Photo)"
+                  aspect="square"
                   required
+                  helpText="Upload PNG, SVG, or JPG partner logo (up to 5MB)"
                 />
               </div>
 
