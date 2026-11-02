@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CheckCircle2,
@@ -8,12 +8,22 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SEOHead } from '../../components/common/SEOHead';
+import { ServiceEnquiryModal } from '../../components/common/ServiceEnquiryModal';
 import { useData } from '../../context/DataContext';
 
 export const ServicesPage: React.FC = () => {
   const { services } = useData();
+  const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState('');
 
-  const publishedServices = services.filter((s) => s.status === 'published');
+  const publishedServices = services
+    .filter((s) => s.status === 'published')
+    .sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+
+  const handleOpenEnquiry = (serviceName: string) => {
+    setSelectedService(serviceName);
+    setEnquiryModalOpen(true);
+  };
 
   return (
     <>
@@ -52,7 +62,7 @@ export const ServicesPage: React.FC = () => {
       </section>
 
       {/* ==================================================
-          DYNAMIC SERVICES LIST (WITH PHOTOS)
+          DYNAMIC SERVICES LIST (NO COMMENTS/REVIEWS, CLEAN CTA)
           ================================================== */}
       <div className="divide-y divide-slate-100">
         {publishedServices.map((srv, index) => {
@@ -79,7 +89,7 @@ export const ServicesPage: React.FC = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-sm text-cyan-300 text-xs font-semibold border border-slate-700/60">
+                        <span className="px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-sm text-cyan-300 text-xs font-semibold border border-slate-700/60 font-mono">
                           {srv.category}
                         </span>
                       </div>
@@ -110,14 +120,22 @@ export const ServicesPage: React.FC = () => {
                       ))}
                     </div>
 
-                    {/* CTA Button */}
-                    <div className="pt-4 flex items-center gap-3">
+                    {/* Service Enquiry CTA (Consistent across website) */}
+                    <div className="pt-4 flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEnquiry(srv.name)}
+                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-ruveron-royal to-ruveron-cyan hover:from-ruveron-navy hover:to-ruveron-blue text-white font-bold text-sm shadow-lg shadow-blue-900/20 hover:scale-105 active:scale-95 transition-all font-outfit"
+                      >
+                        <span>Service Enquiry</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+
                       <Link
                         to="/contact"
-                        className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-ruveron-royal to-ruveron-blue text-white font-bold text-sm shadow-lg shadow-blue-900/20 hover:scale-105 active:scale-95 transition-all font-outfit"
+                        className="text-xs font-bold text-slate-500 hover:text-slate-900 transition"
                       >
-                        <span>Discuss Your Requirements</span>
-                        <ArrowRight className="w-4 h-4" />
+                        Contact Team
                       </Link>
                     </div>
                   </div>
@@ -139,17 +157,32 @@ export const ServicesPage: React.FC = () => {
           <p className="text-slate-300 text-base max-w-2xl mx-auto leading-relaxed">
             Partner with RUVERON SOLUTIONS for tailored workforce management, seamless payroll, and robust statutory compliance.
           </p>
-          <div className="pt-2">
-            <Link
-              to="/contact"
+          <div className="pt-2 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => handleOpenEnquiry('General Corporate Consultation')}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:scale-105 active:scale-95 transition-all font-outfit"
             >
-              <span>Schedule Strategic Consultation</span>
+              <span>Service Enquiry</span>
               <ArrowRight className="w-4 h-4" />
+            </button>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-slate-700 hover:bg-slate-800 text-white font-semibold text-sm transition font-outfit"
+            >
+              Contact Offices
             </Link>
           </div>
         </div>
       </section>
+
+      {/* Reusable Consistent Service Enquiry Modal */}
+      <ServiceEnquiryModal
+        isOpen={enquiryModalOpen}
+        onClose={() => setEnquiryModalOpen(false)}
+        serviceOrSolutionName={selectedService}
+        leadType="Service"
+      />
     </>
   );
 };

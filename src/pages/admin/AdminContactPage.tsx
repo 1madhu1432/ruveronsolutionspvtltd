@@ -6,10 +6,9 @@ import {
   MapPin,
   Eye,
   EyeOff,
-  ExternalLink,
-  Building2,
   Layers,
   Palette,
+  Share2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
@@ -23,6 +22,12 @@ export const AdminContactPage: React.FC = () => {
     mapSubheading:
       companyInfo.mapSubheading ||
       '61-9/1-26, 2nd Lane, Kalanagar, Near Skewbridge, Krishnalanka, Vijayawada (Urban), AP 520013',
+    socialLinks: {
+      youtube: companyInfo.socialLinks?.youtube || 'https://youtube.com/@ruveronsolutions',
+      instagram: companyInfo.socialLinks?.instagram || 'https://instagram.com/ruveronsolutions',
+      x: companyInfo.socialLinks?.x || 'https://x.com/ruveronsolutions',
+      linkedin: companyInfo.socialLinks?.linkedin || 'https://linkedin.com/company/ruveron-solutions',
+    },
   });
   const [saved, setSaved] = useState(false);
 
@@ -47,10 +52,10 @@ export const AdminContactPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5 font-outfit">
             <Phone className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
-            <span>Contact Information & Office Location Controls</span>
+            <span>Contact Information & Social Channels</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Configure corporate contact details, address strings, and Enable/Disable the website office map.
+            Configure corporate contact details, address strings, office map, and official social media channel links.
           </p>
         </div>
 
@@ -76,7 +81,7 @@ export const AdminContactPage: React.FC = () => {
       {saved && (
         <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs flex items-center gap-2.5 animate-fadeIn">
           <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-          <span className="font-semibold">Contact & Office Location settings saved successfully! Changes are live on the website.</span>
+          <span className="font-semibold">Contact, Social Media & Office settings saved successfully! Changes are live on the website.</span>
         </div>
       )}
 
@@ -98,27 +103,26 @@ export const AdminContactPage: React.FC = () => {
                   <span
                     className={`text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full border ${
                       formData.enableMapLocation
-                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                        : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/30'
                     }`}
                   >
-                    {formData.enableMapLocation ? 'Enabled (Visible on Website)' : 'Disabled (Hidden on Website)'}
+                    {formData.enableMapLocation ? 'ENABLED' : 'DISABLED'}
                   </span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Turn the "Locate Our Vijayawada Office" interactive map section ON or OFF on the public website.
+                  Show or hide the interactive Google Maps embed block on the public Contact page.
                 </p>
               </div>
             </div>
 
-            {/* Quick Toggle Button */}
             <button
               type="button"
               onClick={handleToggleMap}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-lg ${
+              className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition cursor-pointer border ${
                 formData.enableMapLocation
-                  ? 'bg-rose-600 hover:bg-rose-500 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  ? 'bg-rose-950/80 hover:bg-rose-900 text-rose-300 border-rose-800 shadow-md'
+                  : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border-emerald-800 shadow-md'
               }`}
             >
               {formData.enableMapLocation ? (
@@ -135,116 +139,25 @@ export const AdminContactPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">
-                Location Heading on Website
-              </label>
+              <label className="block text-slate-300 font-semibold mb-1">Office Map Heading</label>
               <input
                 type="text"
                 value={formData.mapHeading}
                 onChange={(e) => setFormData({ ...formData, mapHeading: e.target.value })}
-                placeholder="e.g. Locate Our Vijayawada Office"
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400 text-xs transition"
+                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
               />
-              <p className="text-[11px] text-slate-500 mt-1">Displayed as the primary section header above the map.</p>
             </div>
-
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">
-                Location Subtitle / Street Address
-              </label>
+              <label className="block text-slate-300 font-semibold mb-1">Office Map Subheading</label>
               <input
                 type="text"
                 value={formData.mapSubheading}
                 onChange={(e) => setFormData({ ...formData, mapSubheading: e.target.value })}
-                placeholder="e.g. 61-9/1-26, 2nd Lane, Kalanagar, Near Skewbridge, Krishnalanka, Vijayawada..."
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400 text-xs transition"
+                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
               />
-              <p className="text-[11px] text-slate-500 mt-1">Displayed below the heading as the exact address subtitle.</p>
             </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-slate-300 font-semibold">
-                Google Maps Iframe Embed URL
-              </label>
-              {formData.mapsIframeUrl && (
-                <a
-                  href={formData.mapsIframeUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
-                >
-                  <span>Test Link</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-            <input
-              type="text"
-              value={formData.mapsIframeUrl || ''}
-              onChange={(e) => setFormData({ ...formData, mapsIframeUrl: e.target.value })}
-              placeholder="https://maps.google.com/maps?q=...&output=embed"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none font-mono text-[11px] focus:border-cyan-400 transition"
-            />
-            <p className="text-[11px] text-slate-500 mt-1">
-              Paste the Google Maps standard embed URL (or search query embed like: <span className="text-slate-400">https://maps.google.com/maps?q=Krishnalanka,%20Vijayawada&output=embed</span>)
-            </p>
-          </div>
-
-          {/* Live Admin Preview */}
-          <div className="rounded-xl border border-slate-800 bg-slate-950/80 p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Live Admin Website Preview</span>
-              </span>
-              <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                  formData.enableMapLocation
-                    ? 'bg-emerald-500/20 text-emerald-300'
-                    : 'bg-rose-500/20 text-rose-300'
-                }`}
-              >
-                {formData.enableMapLocation ? 'WILL APPEAR ON WEBSITE' : 'HIDDEN FROM WEBSITE'}
-              </span>
-            </div>
-
-            {formData.enableMapLocation ? (
-              <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-900/60 p-4 text-center space-y-3">
-                <div className="space-y-1">
-                  <h4 className="text-base font-bold text-white font-outfit">{formData.mapHeading}</h4>
-                  <p className="text-xs text-slate-400 max-w-xl mx-auto">{formData.mapSubheading}</p>
-                </div>
-                {formData.mapsIframeUrl ? (
-                  <div className="rounded-xl overflow-hidden border border-slate-800 h-56 bg-slate-950">
-                    <iframe
-                      title="Admin Live Preview"
-                      src={formData.mapsIframeUrl}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen={false}
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="p-8 text-center text-slate-500">No map embed URL configured.</div>
-                )}
-              </div>
-            ) : (
-              <div className="p-8 rounded-xl border border-dashed border-slate-800 text-center space-y-2 bg-slate-900/30">
-                <EyeOff className="w-8 h-8 text-slate-600 mx-auto" />
-                <p className="text-xs font-semibold text-slate-400">
-                  Office Map section is currently <strong className="text-rose-400">DISABLED</strong>.
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  Visitors on the public website won't see the map section. Click "Enable Office Map on Website" to show it anytime.
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
@@ -299,6 +212,85 @@ export const AdminContactPage: React.FC = () => {
           </div>
         </div>
 
+        {/* ==================================================
+            SECTION 3: SOCIAL MEDIA CHANNELS (MODULE 4.1)
+            ================================================== */}
+        <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 shadow-xl space-y-4">
+          <h3 className="font-bold text-white text-base border-b border-slate-800 pb-2 font-outfit flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-cyan-400" />
+              <span>Official Social Media Channel Links</span>
+            </span>
+            <span className="text-[11px] font-normal text-slate-400">Displayed in Footer & Contact Cards</span>
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-slate-300 font-semibold mb-1">YouTube Channel URL</label>
+              <input
+                type="url"
+                value={formData.socialLinks?.youtube || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, youtube: e.target.value },
+                  })
+                }
+                placeholder="https://youtube.com/@ruveronsolutions"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-semibold mb-1">Instagram Profile URL</label>
+              <input
+                type="url"
+                value={formData.socialLinks?.instagram || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, instagram: e.target.value },
+                  })
+                }
+                placeholder="https://instagram.com/ruveronsolutions"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-semibold mb-1">X (formerly Twitter) URL</label>
+              <input
+                type="url"
+                value={formData.socialLinks?.x || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, x: e.target.value },
+                  })
+                }
+                placeholder="https://x.com/ruveronsolutions"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-semibold mb-1">LinkedIn Page URL</label>
+              <input
+                type="url"
+                value={formData.socialLinks?.linkedin || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    socialLinks: { ...formData.socialLinks, linkedin: e.target.value },
+                  })
+                }
+                placeholder="https://linkedin.com/company/ruveron-solutions"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Save Bar */}
         <div className="flex justify-end pt-2">
           <button
@@ -306,7 +298,7 @@ export const AdminContactPage: React.FC = () => {
             className="px-7 py-3 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 hover:opacity-95 transition flex items-center gap-2 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Save All Location & Contact Settings</span>
+            <span>Save All Contact, Social & Location Settings</span>
           </button>
         </div>
       </form>

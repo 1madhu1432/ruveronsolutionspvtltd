@@ -89,6 +89,7 @@ export const AdminClientsPage: React.FC = () => {
     accountManager: '',
     billingCycle: 'Monthly' as 'Monthly' | 'Quarterly' | 'Annual' | 'Bi-Weekly' | 'Custom',
     remarks: '',
+    displayOrder: 1,
   });
 
   // Extract distinct industries for filter dropdown
@@ -165,6 +166,7 @@ export const AdminClientsPage: React.FC = () => {
       accountManager: 'Vikram Joshi',
       billingCycle: 'Monthly',
       remarks: '',
+      displayOrder: clients.length + 1,
     });
     setEditModalOpen(true);
   };
@@ -200,6 +202,7 @@ export const AdminClientsPage: React.FC = () => {
       accountManager: client.accountManager || '',
       billingCycle: client.billingCycle || 'Monthly',
       remarks: client.remarks || '',
+      displayOrder: client.displayOrder ?? 1,
     });
     setEditModalOpen(true);
   };

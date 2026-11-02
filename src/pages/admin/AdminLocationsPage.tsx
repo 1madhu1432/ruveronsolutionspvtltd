@@ -37,7 +37,77 @@ export const AdminLocationsPage: React.FC = () => {
     companyInfo,
     toggleMapLocationDisplay,
     resetLocationsToDefault,
+    companyOffices,
+    addCompanyOffice,
+    updateCompanyOffice,
+    deleteCompanyOffice,
   } = useData();
+
+  // Top-level tab state
+  const [activeLocationTab, setActiveLocationTab] = useState<'offices' | 'districts'>('offices');
+
+  // Office Modal State
+  const [officeModalOpen, setOfficeModalOpen] = useState(false);
+  const [editingOfficeId, setEditingOfficeId] = useState<string | null>(null);
+  const [officeForm, setOfficeForm] = useState({
+    name: '',
+    type: 'Registered Office' as 'Registered Office' | 'Business Office' | 'Branch Office',
+    address: '',
+    mapsUrl: '',
+    phone: '+91 866 248 1234',
+    email: 'info@ruveronsolutions.com',
+    status: 'Active' as 'Active' | 'Inactive',
+  });
+
+  const handleOpenAddOffice = () => {
+    setEditingOfficeId(null);
+    setOfficeForm({
+      name: 'Ruveron Corporate Office',
+      type: 'Business Office',
+      address: '',
+      mapsUrl: 'https://maps.google.com/?q=Vijayawada',
+      phone: '+91 866 248 1234',
+      email: 'info@ruveronsolutions.com',
+      status: 'Active',
+    });
+    setOfficeModalOpen(true);
+  };
+
+  const handleOpenEditOffice = (office: any) => {
+    setEditingOfficeId(office.id);
+    setOfficeForm({
+      name: office.name,
+      type: office.type,
+      address: office.address,
+      mapsUrl: office.mapsUrl || '',
+      phone: office.phone || '',
+      email: office.email || '',
+      status: office.status,
+    });
+    setOfficeModalOpen(true);
+  };
+
+  const handleSubmitOffice = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!officeForm.name || !officeForm.address) return;
+
+    const payload = {
+      name: officeForm.name,
+      type: officeForm.type,
+      address: officeForm.address,
+      mapsLink: officeForm.mapsUrl,
+      phone: officeForm.phone,
+      email: officeForm.email,
+      status: officeForm.status,
+    };
+
+    if (editingOfficeId) {
+      updateCompanyOffice(editingOfficeId, payload);
+    } else {
+      addCompanyOffice(payload);
+    }
+    setOfficeModalOpen(false);
+  };
 
   // Action feedback message
   const [actionNotification, setActionNotification] = useState<string | null>(null);
@@ -260,23 +330,59 @@ export const AdminLocationsPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleResetDefaults}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition"
-            title="Restore default Andhra Pradesh, Telangana and corporate operating locations"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Defaults</span>
-          </button>
+          {activeLocationTab === 'offices' ? (
+            <button
+              onClick={handleOpenAddOffice}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition flex items-center gap-2 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 text-slate-950" />
+              <span>Add Corporate Office</span>
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleResetDefaults}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
+                title="Restore default Andhra Pradesh, Telangana and corporate operating locations"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Defaults</span>
+              </button>
 
-          <button
-            onClick={handleOpenAddModal}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4 text-slate-950" />
-            <span>Add New Location</span>
-          </button>
+              <button
+                onClick={handleOpenAddModal}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition flex items-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 text-slate-950" />
+                <span>Add New District</span>
+              </button>
+            </>
+          )}
         </div>
+      </div>
+
+      {/* Top Navigation Tabs */}
+      <div className="flex items-center gap-6 border-b border-slate-800 pb-1">
+        <button
+          onClick={() => setActiveLocationTab('offices')}
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition cursor-pointer ${activeLocationTab === 'offices'
+              ? 'border-cyan-400 text-cyan-400'
+              : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Company Corporate Offices ({companyOffices?.length || 0})</span>
+        </button>
+        <button
+          onClick={() => setActiveLocationTab('districts')}
+          className={`pb-3 text-sm font-bold flex items-center gap-2 border-b-2 transition cursor-pointer ${activeLocationTab === 'districts'
+              ? 'border-cyan-400 text-cyan-400'
+              : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+        >
+          <MapPin className="w-4 h-4" />
+          <span>State Operating Districts ({locations.length})</span>
+        </button>
       </div>
 
       {/* ==================================================
@@ -298,497 +404,722 @@ export const AdminLocationsPage: React.FC = () => {
       )}
 
       {/* ==================================================
-          MASTER WEBSITE LOCATION & MAP CONTROLS
+          CORPORATE OFFICES TAB CONTENT (Module 1.1)
           ================================================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Office Map Section Control */}
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-sm font-outfit">Website Office Map Display</h3>
+      {activeLocationTab === 'offices' ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {companyOffices?.map((off) => (
+              <div
+                key={off.id}
+                className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-slate-700 transition"
+              >
+                <div className="flex items-center justify-between">
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      companyInfo.enableMapLocation !== false
-                        ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                        : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
-                    }`}
+                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${off.type === 'Registered Office'
+                        ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                        : off.type === 'Business Office'
+                          ? 'bg-cyan-950 text-cyan-300 border border-cyan-800'
+                          : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                      }`}
                   >
-                    {companyInfo.enableMapLocation !== false ? 'Active on Website' : 'Disabled / Hidden'}
+                    {off.type}
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded ${off.status === 'Active'
+                        ? 'bg-emerald-950 text-emerald-300'
+                        : 'bg-slate-800 text-slate-400'
+                      }`}
+                  >
+                    {off.status}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  "Locate Our Vijayawada Office" interactive map on public contact & home pages.
-                </p>
-              </div>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
-            <Link
-              to="/admin/contact"
-              className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
-            >
-              <span>Edit Heading & Map URL</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-
-            <button
-              onClick={toggleMapLocationDisplay}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md cursor-pointer ${
-                companyInfo.enableMapLocation !== false
-                  ? 'bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/50'
-                  : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/50'
-              }`}
-            >
-              {companyInfo.enableMapLocation !== false ? (
-                <>
-                  <EyeOff className="w-3.5 h-3.5" />
-                  <span>Disable Office Map</span>
-                </>
-              ) : (
-                <>
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Enable Office Map</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Operating Locations Bulk Enable/Disable */}
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-white text-sm font-outfit">Operating Districts Visibility</h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                    {activeLocationsCount} Active / {locations.length - activeLocationsCount} Disabled
-                  </span>
+                <div>
+                  <h3 className="font-bold text-white text-base">{off.name}</h3>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">{off.address}</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Bulk enable or disable all operating districts in public lead form dropdowns.
-                </p>
+
+                <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 text-[11px]">Phone:</span>
+                    <span className="font-mono">{off.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 text-[11px]">Email:</span>
+                    <span className="text-cyan-400">{off.email}</span>
+                  </div>
+                  {off.mapsLink && (
+                    <div className="pt-1">
+                      <a
+                        href={off.mapsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold"
+                      >
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>View on Google Maps</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                  <button
+                    onClick={() => handleOpenEditOffice(off)}
+                    className="p-1.5 rounded-lg bg-slate-950 text-cyan-400 hover:bg-slate-800 transition"
+                    title="Edit Office Details"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Delete office ${off.name}?`)) {
+                        deleteCompanyOffice(off.id);
+                      }
+                    }}
+                    className="p-1.5 rounded-lg bg-slate-950 text-rose-400 hover:bg-rose-950/80 transition"
+                    title="Delete Office"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800/80">
-            <button
-              onClick={handleEnableAll}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer"
-              title="Activate all locations so they appear in dropdowns"
-            >
-              <CheckSquare className="w-3.5 h-3.5" />
-              <span>Enable All Locations</span>
-            </button>
-
-            <button
-              onClick={handleDisableAll}
-              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-rose-900/30 cursor-pointer"
-              title="Deactivate all locations from public dropdowns"
-            >
-              <XSquare className="w-3.5 h-3.5" />
-              <span>Disable All Locations</span>
-            </button>
+            ))}
           </div>
         </div>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-            <span>Total Locations</span>
-            <MapPin className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-white font-mono">{locations.length}</div>
-          <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span>Across all operating regions</span>
-          </div>
-        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Office Map Section Control */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-sm font-outfit">Website Office Map Display</h3>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${companyInfo.enableMapLocation !== false
+                            ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                            : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+                          }`}
+                      >
+                        {companyInfo.enableMapLocation !== false ? 'Active on Website' : 'Disabled / Hidden'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      "Locate Our Vijayawada Office" interactive map on public contact & home pages.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-            <span>Active in Dropdowns</span>
-            <CheckCircle className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-black text-emerald-400 font-mono">{activeLocationsCount}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Available for lead submissions</div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-            <span>States & UTs Covered</span>
-            <Globe2 className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-2xl font-black text-white font-mono">{statesCount}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Primary AP & TS focus</div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
-            <span>HQ & Primary Hubs</span>
-            <Building2 className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-black text-amber-400 font-mono">{hqLocationsCount}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Vijayawada Corporate HQ</div>
-        </div>
-      </div>
-
-      {/* ==================================================
-          QUICK-ADD FORM BAR
-          ================================================== */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 rounded-2xl border border-cyan-500/30 shadow-xl relative overflow-hidden">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-              Quick Add Location (State & District)
-            </h3>
-          </div>
-          {quickFeedback && (
-            <span className="text-xs text-cyan-300 font-semibold bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-500/40 animate-fadeIn">
-              {quickFeedback}
-            </span>
-          )}
-        </div>
-
-        <form onSubmit={handleQuickAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          {/* State Selector */}
-          <div className="sm:col-span-4 space-y-1">
-            <label className="text-[11px] font-semibold text-slate-300">
-              State / Union Territory *
-            </label>
-            {!isCustomQuickState ? (
-              <div className="flex gap-1.5">
-                <select
-                  value={quickState}
-                  onChange={(e) => {
-                    if (e.target.value === '__new__') {
-                      setIsCustomQuickState(true);
-                      setCustomQuickStateName('');
-                    } else {
-                      setQuickState(e.target.value);
-                    }
-                  }}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
+                <Link
+                  to="/admin/contact"
+                  className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1"
                 >
-                  {distinctStates.map((st) => (
-                    <option key={st} value={st}>
-                      {st}
-                    </option>
-                  ))}
-                  <option value="__new__">+ Type New State...</option>
-                </select>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="text"
-                  value={customQuickStateName}
-                  onChange={(e) => setCustomQuickStateName(e.target.value)}
-                  placeholder="Enter new state name..."
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-cyan-400 text-white text-xs outline-none"
-                  autoFocus
-                />
+                  <span>Edit Heading & Map URL</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+
                 <button
-                  type="button"
-                  onClick={() => setIsCustomQuickState(false)}
-                  className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
-                  title="Choose existing state"
+                  onClick={toggleMapLocationDisplay}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md cursor-pointer ${companyInfo.enableMapLocation !== false
+                      ? 'bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/50'
+                      : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/50'
+                    }`}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  {companyInfo.enableMapLocation !== false ? (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5" />
+                      <span>Disable Office Map</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Enable Office Map</span>
+                    </>
+                  )}
                 </button>
               </div>
-            )}
+            </div>
+
+            {/* Operating Locations Bulk Enable/Disable */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-slate-800 shadow-xl relative overflow-hidden flex flex-col justify-between">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                    <Layers className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-white text-sm font-outfit">Operating Districts Visibility</h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                        {activeLocationsCount} Active / {locations.length - activeLocationsCount} Disabled
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Bulk enable or disable all operating districts in public lead form dropdowns.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800/80">
+                <button
+                  onClick={handleEnableAll}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer"
+                  title="Activate all locations so they appear in dropdowns"
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>Enable All Locations</span>
+                </button>
+
+                <button
+                  onClick={handleDisableAll}
+                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md shadow-rose-900/30 cursor-pointer"
+                  title="Deactivate all locations from public dropdowns"
+                >
+                  <XSquare className="w-3.5 h-3.5" />
+                  <span>Disable All Locations</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
+                <span>Total Locations</span>
+                <MapPin className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div className="text-2xl font-black text-white font-mono">{locations.length}</div>
+              <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span>Across all operating regions</span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
+                <span>Active in Dropdowns</span>
+                <CheckCircle className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="text-2xl font-black text-emerald-400 font-mono">{activeLocationsCount}</div>
+              <div className="text-[11px] text-slate-400 mt-1">Available for lead submissions</div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
+                <span>States & UTs Covered</span>
+                <Globe2 className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="text-2xl font-black text-white font-mono">{statesCount}</div>
+              <div className="text-[11px] text-slate-400 mt-1">Primary AP & TS focus</div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-1">
+                <span>HQ & Primary Hubs</span>
+                <Building2 className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="text-2xl font-black text-amber-400 font-mono">{hqLocationsCount}</div>
+              <div className="text-[11px] text-slate-400 mt-1">Vijayawada Corporate HQ</div>
+            </div>
           </div>
 
-          {/* District Input */}
-          <div className="sm:col-span-5 space-y-1">
-            <label className="text-[11px] font-semibold text-slate-300">
-              District / City Name *
-            </label>
-            <input
-              type="text"
-              value={quickDistrict}
-              onChange={(e) => setQuickDistrict(e.target.value)}
-              placeholder="e.g. Guntur, Warangal, Tirupati, Secunderabad..."
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
-              required
-            />
+          {/* ==================================================
+          QUICK-ADD FORM BAR
+          ================================================== */}
+          <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 rounded-2xl border border-cyan-500/30 shadow-xl relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                  Quick Add Location (State & District)
+                </h3>
+              </div>
+              {quickFeedback && (
+                <span className="text-xs text-cyan-300 font-semibold bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-500/40 animate-fadeIn">
+                  {quickFeedback}
+                </span>
+              )}
+            </div>
+
+            <form onSubmit={handleQuickAdd} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+              {/* State Selector */}
+              <div className="sm:col-span-4 space-y-1">
+                <label className="text-[11px] font-semibold text-slate-300">
+                  State / Union Territory *
+                </label>
+                {!isCustomQuickState ? (
+                  <div className="flex gap-1.5">
+                    <select
+                      value={quickState}
+                      onChange={(e) => {
+                        if (e.target.value === '__new__') {
+                          setIsCustomQuickState(true);
+                          setCustomQuickStateName('');
+                        } else {
+                          setQuickState(e.target.value);
+                        }
+                      }}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
+                    >
+                      {distinctStates.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                      <option value="__new__">+ Type New State...</option>
+                    </select>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={customQuickStateName}
+                      onChange={(e) => setCustomQuickStateName(e.target.value)}
+                      placeholder="Enter new state name..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-cyan-400 text-white text-xs outline-none"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomQuickState(false)}
+                      className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+                      title="Choose existing state"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* District Input */}
+              <div className="sm:col-span-5 space-y-1">
+                <label className="text-[11px] font-semibold text-slate-300">
+                  District / City Name *
+                </label>
+                <input
+                  type="text"
+                  value={quickDistrict}
+                  onChange={(e) => setQuickDistrict(e.target.value)}
+                  placeholder="e.g. Guntur, Warangal, Tirupati, Secunderabad..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
+                  required
+                />
+              </div>
+
+              {/* HQ Checkbox & Submit */}
+              <div className="sm:col-span-3 flex items-center justify-between gap-3">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={quickIsHQ}
+                    onChange={(e) => setQuickIsHQ(e.target.checked)}
+                    className="w-4 h-4 rounded text-cyan-500 focus:ring-0 bg-slate-900 border-slate-700 cursor-pointer"
+                  />
+                  <span className="text-xs text-slate-300 font-medium">Is HQ?</span>
+                </label>
+
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition flex items-center gap-1.5 shrink-0 shadow-md shadow-cyan-500/20"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Location</span>
+                </button>
+              </div>
+            </form>
           </div>
 
-          {/* HQ Checkbox & Submit */}
-          <div className="sm:col-span-3 flex items-center justify-between gap-3">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={quickIsHQ}
-                onChange={(e) => setQuickIsHQ(e.target.checked)}
-                className="w-4 h-4 rounded text-cyan-500 focus:ring-0 bg-slate-900 border-slate-700 cursor-pointer"
-              />
-              <span className="text-xs text-slate-300 font-medium">Is HQ?</span>
-            </label>
-
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition flex items-center gap-1.5 shrink-0 shadow-md shadow-cyan-500/20"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Location</span>
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* ==================================================
+          {/* ==================================================
           SEARCH & FILTER TOOLBAR
           ================================================== */}
-      <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-          {/* Search Input */}
-          <div className="sm:col-span-4 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search district, city, or state..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
-            />
-          </div>
+          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              {/* Search Input */}
+              <div className="sm:col-span-4 relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search district, city, or state..."
+                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
+                />
+              </div>
 
-          {/* State Filter */}
-          <div className="sm:col-span-3">
-            <select
-              value={stateFilter}
-              onChange={(e) => setStateFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
-            >
-              <option value="all">All States ({locations.length})</option>
-              {distinctStates.map((st) => {
-                const count = locations.filter((l) => l.state === st).length;
-                return (
-                  <option key={st} value={st}>
-                    {st} ({count})
+              {/* State Filter */}
+              <div className="sm:col-span-3">
+                <select
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
+                >
+                  <option value="all">All States ({locations.length})</option>
+                  {distinctStates.map((st) => {
+                    const count = locations.filter((l) => l.state === st).length;
+                    return (
+                      <option key={st} value={st}>
+                        {st} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="sm:col-span-3">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as 'all' | 'Active' | 'Inactive')}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="Active">Active in Dropdowns ({activeLocationsCount})</option>
+                  <option value="Inactive">
+                    Inactive / Hidden ({locations.length - activeLocationsCount})
                   </option>
-                );
-              })}
-            </select>
-          </div>
+                </select>
+              </div>
 
-          {/* Status Filter */}
-          <div className="sm:col-span-3">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'Active' | 'Inactive')}
-              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
-            >
-              <option value="all">All Statuses</option>
-              <option value="Active">Active in Dropdowns ({activeLocationsCount})</option>
-              <option value="Inactive">
-                Inactive / Hidden ({locations.length - activeLocationsCount})
-              </option>
-            </select>
-          </div>
-
-          {/* HQ Filter */}
-          <div className="sm:col-span-2">
-            <select
-              value={hqFilter}
-              onChange={(e) => setHqFilter(e.target.value as 'all' | 'hq' | 'regular')}
-              className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
-            >
-              <option value="all">All Hub Types</option>
-              <option value="hq">HQ Hubs ({hqLocationsCount})</option>
-              <option value="regular">Districts ({locations.length - hqLocationsCount})</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Filter Summary & State Bulk Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400 pt-1 border-t border-slate-800/80">
-          <div className="flex items-center gap-3">
-            <span>
-              Showing <strong className="text-white">{filteredLocations.length}</strong> of {locations.length} locations
-            </span>
-            {(searchTerm || stateFilter !== 'all' || statusFilter !== 'all' || hqFilter !== 'all') && (
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setStateFilter('all');
-                  setStatusFilter('all');
-                  setHqFilter('all');
-                }}
-                className="text-xs text-cyan-400 hover:text-white underline cursor-pointer"
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-
-          {stateFilter !== 'all' && (
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-300 font-medium">Bulk for {stateFilter}:</span>
-              <button
-                onClick={() => handleToggleStateLocations(stateFilter, true)}
-                className="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
-              >
-                <CheckSquare className="w-3 h-3" />
-                <span>Enable All</span>
-              </button>
-              <button
-                onClick={() => handleToggleStateLocations(stateFilter, false)}
-                className="px-2.5 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
-              >
-                <XSquare className="w-3 h-3" />
-                <span>Disable All</span>
-              </button>
+              {/* HQ Filter */}
+              <div className="sm:col-span-2">
+                <select
+                  value={hqFilter}
+                  onChange={(e) => setHqFilter(e.target.value as 'all' | 'hq' | 'regular')}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:border-cyan-400"
+                >
+                  <option value="all">All Hub Types</option>
+                  <option value="hq">HQ Hubs ({hqLocationsCount})</option>
+                  <option value="regular">Districts ({locations.length - hqLocationsCount})</option>
+                </select>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* ==================================================
+            {/* Filter Summary & State Bulk Controls */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-400 pt-1 border-t border-slate-800/80">
+              <div className="flex items-center gap-3">
+                <span>
+                  Showing <strong className="text-white">{filteredLocations.length}</strong> of {locations.length} locations
+                </span>
+                {(searchTerm || stateFilter !== 'all' || statusFilter !== 'all' || hqFilter !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setStateFilter('all');
+                      setStatusFilter('all');
+                      setHqFilter('all');
+                    }}
+                    className="text-xs text-cyan-400 hover:text-white underline cursor-pointer"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+
+              {stateFilter !== 'all' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-slate-300 font-medium">Bulk for {stateFilter}:</span>
+                  <button
+                    onClick={() => handleToggleStateLocations(stateFilter, true)}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <CheckSquare className="w-3 h-3" />
+                    <span>Enable All</span>
+                  </button>
+                  <button
+                    onClick={() => handleToggleStateLocations(stateFilter, false)}
+                    className="px-2.5 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <XSquare className="w-3 h-3" />
+                    <span>Disable All</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ==================================================
           LOCATIONS TABLE / LIST
           ================================================== */}
-      <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
-              <tr>
-                <th className="py-3.5 px-4">District / City</th>
-                <th className="py-3.5 px-4">State / Territory</th>
-                <th className="py-3.5 px-4">Classification</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4">Display in Forms</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 font-sans">
-              {filteredLocations.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    <MapPin className="w-8 h-8 mx-auto text-slate-600 mb-2" />
-                    <p className="text-sm font-semibold text-slate-300">No matching locations found</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Try adjusting your search terms or add a new location above.
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                filteredLocations.map((loc) => {
-                  return (
-                    <tr key={loc.id} className="hover:bg-slate-900/40 transition group">
-                      {/* District */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-2.5">
-                          <div
-                            className={`p-1.5 rounded-lg ${
-                              loc.isHQ
-                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                : 'bg-slate-800 text-slate-300 border border-slate-700'
-                            }`}
-                          >
-                            <MapPin className="w-3.5 h-3.5" />
-                          </div>
-                          <div>
-                            <span className="font-bold text-white text-sm">{loc.district}</span>
-                            {loc.isHQ && (
-                              <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider">
-                                Corporate HQ
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* State */}
-                      <td className="py-3.5 px-4">
-                        <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs font-medium">
-                          {loc.state}
-                        </span>
-                      </td>
-
-                      {/* Classification */}
-                      <td className="py-3.5 px-4">
-                        {loc.isHQ ? (
-                          <span className="text-amber-400 font-semibold flex items-center gap-1.5">
-                            <Building2 className="w-3.5 h-3.5" />
-                            <span>Headquarters Hub</span>
-                          </span>
-                        ) : (
-                          <span className="text-slate-400 flex items-center gap-1.5">
-                            <Layers className="w-3.5 h-3.5" />
-                            <span>Operating District</span>
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Status / Enable & Disable Option */}
-                      <td className="py-3.5 px-4">
-                        <button
-                          onClick={() => toggleLocationStatus(loc.id)}
-                          className={`px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer ${
-                            loc.status === 'Active'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20'
-                          }`}
-                          title={loc.status === 'Active' ? 'Click to Disable (Hide from website forms)' : 'Click to Enable (Show in website forms)'}
-                        >
-                          <Power className={`w-3 h-3 ${loc.status === 'Active' ? 'text-emerald-400' : 'text-rose-400'}`} />
-                          <span>{loc.status === 'Active' ? 'Enabled' : 'Disabled'}</span>
-                        </button>
-                      </td>
-
-                      {/* Display in Forms Label preview */}
-                      <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px] max-w-xs truncate">
-                        {formatLocationLabel(loc)}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleOpenEditModal(loc)}
-                            className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition"
-                            title="Edit location"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  `Are you sure you want to remove "${loc.district}, ${loc.state}"?`
-                                )
-                              ) {
-                                deleteLocation(loc.id);
-                              }
-                            }}
-                            className="p-1.5 rounded-lg bg-slate-800 text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition"
-                            title="Delete location"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+          <div className="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3.5 px-4">District / City</th>
+                    <th className="py-3.5 px-4">State / Territory</th>
+                    <th className="py-3.5 px-4">Classification</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4">Display in Forms</th>
+                    <th className="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-sans">
+                  {filteredLocations.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                        <MapPin className="w-8 h-8 mx-auto text-slate-600 mb-2" />
+                        <p className="text-sm font-semibold text-slate-300">No matching locations found</p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Try adjusting your search terms or add a new location above.
+                        </p>
                       </td>
                     </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                  ) : (
+                    filteredLocations.map((loc) => {
+                      return (
+                        <tr key={loc.id} className="hover:bg-slate-900/40 transition group">
+                          {/* District */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className={`p-1.5 rounded-lg ${loc.isHQ
+                                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                    : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                  }`}
+                              >
+                                <MapPin className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <span className="font-bold text-white text-sm">{loc.district}</span>
+                                {loc.isHQ && (
+                                  <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider">
+                                    Corporate HQ
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* State */}
+                          <td className="py-3.5 px-4">
+                            <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs font-medium">
+                              {loc.state}
+                            </span>
+                          </td>
+
+                          {/* Classification */}
+                          <td className="py-3.5 px-4">
+                            {loc.isHQ ? (
+                              <span className="text-amber-400 font-semibold flex items-center gap-1.5">
+                                <Building2 className="w-3.5 h-3.5" />
+                                <span>Headquarters Hub</span>
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 flex items-center gap-1.5">
+                                <Layers className="w-3.5 h-3.5" />
+                                <span>Operating District</span>
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Status / Enable & Disable Option */}
+                          <td className="py-3.5 px-4">
+                            <button
+                              onClick={() => toggleLocationStatus(loc.id)}
+                              className={`px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer ${loc.status === 'Active'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
+                                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20'
+                                }`}
+                              title={loc.status === 'Active' ? 'Click to Disable (Hide from website forms)' : 'Click to Enable (Show in website forms)'}
+                            >
+                              <Power className={`w-3 h-3 ${loc.status === 'Active' ? 'text-emerald-400' : 'text-rose-400'}`} />
+                              <span>{loc.status === 'Active' ? 'Enabled' : 'Disabled'}</span>
+                            </button>
+                          </td>
+
+                          {/* Display in Forms Label preview */}
+                          <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px] max-w-xs truncate">
+                            {formatLocationLabel(loc)}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-3.5 px-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => handleOpenEditModal(loc)}
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition"
+                                title="Edit location"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      `Are you sure you want to remove "${loc.district}, ${loc.state}"?`
+                                    )
+                                  ) {
+                                    deleteLocation(loc.id);
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg bg-slate-800 text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition"
+                                title="Delete location"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ==================================================
+          ADD / EDIT CORPORATE OFFICE MODAL (Module 1.1)
+          ================================================== */}
+      {officeModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-scaleUp">
+            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white font-outfit">
+                    {editingOfficeId ? 'Edit Corporate Office' : 'Add Corporate Office'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Configure office name, address, Google Maps link, and contact details.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setOfficeModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitOffice} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Office Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={officeForm.name}
+                  onChange={(e) => setOfficeForm({ ...officeForm, name: e.target.value })}
+                  placeholder="e.g. Registered Office — Vijayawada"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Office Type</label>
+                  <select
+                    value={officeForm.type}
+                    onChange={(e) =>
+                      setOfficeForm({
+                        ...officeForm,
+                        type: e.target.value as 'Registered Office' | 'Business Office' | 'Branch Office',
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                  >
+                    <option value="Registered Office">Registered Office</option>
+                    <option value="Business Office">Business Office</option>
+                    <option value="Branch Office">Branch Office</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Status</label>
+                  <select
+                    value={officeForm.status}
+                    onChange={(e) =>
+                      setOfficeForm({
+                        ...officeForm,
+                        status: e.target.value as 'Active' | 'Inactive',
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Office Address *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={officeForm.address}
+                  onChange={(e) => setOfficeForm({ ...officeForm, address: e.target.value })}
+                  placeholder="Enter complete office address..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Google Maps Link</label>
+                <input
+                  type="url"
+                  value={officeForm.mapsUrl}
+                  onChange={(e) => setOfficeForm({ ...officeForm, mapsUrl: e.target.value })}
+                  placeholder="https://maps.google.com/?q=..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    value={officeForm.phone}
+                    onChange={(e) => setOfficeForm({ ...officeForm, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Email ID</label>
+                  <input
+                    type="email"
+                    value={officeForm.email}
+                    onChange={(e) => setOfficeForm({ ...officeForm, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setOfficeModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold transition shadow-lg shadow-cyan-500/20"
+                >
+                  {editingOfficeId ? 'Save Office' : 'Add Office'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ==================================================
           ADD / EDIT LOCATION MODAL

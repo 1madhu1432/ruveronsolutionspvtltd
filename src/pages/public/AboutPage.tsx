@@ -1,11 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Target, Award, CheckCircle2, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Target, Award, CheckCircle2, ArrowRight, HeartHandshake, History } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { SEOHead } from '../../components/common/SEOHead';
 
 export const AboutPage: React.FC = () => {
-  const { aboutContent } = useData();
+  const { aboutContent, homeContent } = useData();
+
+  const ourStoryImg =
+    aboutContent.ourStoryImageUrl ||
+    homeContent.ourStoryImageUrl ||
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80';
+
+  const coreValuesImg =
+    aboutContent.coreValuesImageUrl ||
+    homeContent.coreValuesImageUrl ||
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80';
 
   return (
     <>
@@ -41,6 +51,108 @@ export const AboutPage: React.FC = () => {
           </p>
           <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-sm leading-relaxed">
             RUVERON SOLUTIONS operates at the intersection of strategic talent management, process rigor, and statutory compliance. We eliminate administrative friction so organizations can focus on core expansion.
+          </div>
+        </div>
+      </section>
+
+      {/* OUR STORY (WITH MEDIA UPLOAD DISPLAY) */}
+      <section className="py-20 bg-slate-50 border-y border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-100 text-cyan-900 text-xs font-bold uppercase tracking-wider">
+                <History className="w-3.5 h-3.5" />
+                <span>Our Story & Founding Legacy</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-outfit tracking-tight">
+                Built to Deliver Precision, Reliability, and Scale
+              </h2>
+              <p className="text-base text-slate-600 leading-relaxed">
+                {homeContent.ourStoryDesc ||
+                  'Founded with a clear vision to bridge operational execution and organizational growth, Ruveron Solutions has evolved into a premier workforce, payroll management, and turnkey engineering solutions provider.'}
+              </p>
+              <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2 text-xs text-slate-600">
+                <div className="font-bold text-slate-900">Milestone Highlights</div>
+                <div>• Pan-India client base spanning IT, Manufacturing, Healthcare, and BFSI</div>
+                <div>• Zero-defect compliance track record across statutory regulatory bodies</div>
+                <div>• Turnkey engineering division supporting major industrial climate projects</div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6">
+              <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative group">
+                <img
+                  src={ourStoryImg}
+                  alt="Our Story"
+                  className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-slate-950/80 backdrop-blur-md text-white border border-slate-700/60">
+                  <div className="text-xs font-bold text-cyan-400 uppercase tracking-widest font-mono">
+                    Ruveron Solutions Journey
+                  </div>
+                  <div className="text-sm font-semibold mt-0.5">
+                    Strategic Execution & Continuous Expansion
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CORE VALUES (WITH MEDIA UPLOAD DISPLAY) */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative group">
+                <img
+                  src={coreValuesImg}
+                  alt="Core Values"
+                  className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-slate-950/80 backdrop-blur-md text-white border border-slate-700/60">
+                  <div className="text-xs font-bold text-cyan-400 uppercase tracking-widest font-mono">
+                    Guiding Principles
+                  </div>
+                  <div className="text-sm font-semibold mt-0.5">
+                    Integrity, Excellence & Compliance Rigor
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 space-y-6 order-1 lg:order-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 text-ruveron-royal text-xs font-bold uppercase tracking-wider">
+                <HeartHandshake className="w-3.5 h-3.5" />
+                <span>Our Core Values</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-outfit tracking-tight">
+                Values That Define Every Engagement
+              </h2>
+              <p className="text-base text-slate-600 leading-relaxed">
+                {homeContent.coreValuesDesc ||
+                  'Integrity, precision execution, transparency, continuous innovation, and unwavering client commitment form the bedrock of everything we build.'}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-ruveron-royal" />
+                    <span>Integrity & Trust</span>
+                  </div>
+                  <p className="text-xs text-slate-600">Uncompromising honesty in statutory reporting and transparency.</p>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-ruveron-cyan" />
+                    <span>Client First</span>
+                  </div>
+                  <p className="text-xs text-slate-600">Tailored service delivery matching organizational culture.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -163,3 +275,5 @@ export const AboutPage: React.FC = () => {
     </>
   );
 };
+
+export default AboutPage;

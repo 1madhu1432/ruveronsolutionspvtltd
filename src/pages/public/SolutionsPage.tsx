@@ -1,47 +1,65 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Phone, ShieldCheck, Zap, Award, Sparkles, Building2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, Award, Sparkles, Building2, Phone } from 'lucide-react';
 import { SEOHead } from '../../components/common/SEOHead';
 import { areasOfExpertise, projectSectors } from '../../data/hvacSolutionsData';
 import { HvacIcon } from '../../components/solutions/HvacIcons';
 import { SolutionDetailModal, type UnifiedDetailItem } from '../../components/solutions/SolutionDetailModal';
+import { ServiceEnquiryModal } from '../../components/common/ServiceEnquiryModal';
 import { useData } from '../../context/DataContext';
+import type { SolutionItem } from '../../types';
 
 export const SolutionsPage: React.FC = () => {
   const { solutions, projects } = useData();
   const [selectedItem, setSelectedItem] = useState<UnifiedDetailItem | null>(null);
+  const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
+  const [enquiryServiceTitle, setEnquiryServiceTitle] = useState('');
+  const [displayCount, setDisplayCount] = useState<number>(8);
 
   // Active published data from context, with fallback to initial static datasets
-  const activeSolutions =
+  const rawSolutions: SolutionItem[] =
     solutions.filter((s) => s.status === 'published').length > 0
       ? solutions.filter((s) => s.status === 'published')
-      : areasOfExpertise.map((a) => ({
-          id: a.id,
-          title: a.title,
-          category: a.category,
-          description: a.description,
-          benefits: a.features,
-          imageUrl: a.image,
-          iconName: a.iconType,
-          status: 'published' as const,
-          updatedAt: '2026-10-01',
-        }));
+      : areasOfExpertise.map((a, idx) => ({
+        id: a.id,
+        title: a.title,
+        category: a.category,
+        companyName: 'Ruveron Solutions',
+        customer: 'Ruveron Solutions',
+        description: a.description,
+        benefits: a.features,
+        imageUrl: a.image,
+        images: [a.image],
+        iconName: a.iconType,
+        displayOrder: idx + 1,
+        status: 'published' as const,
+        updatedAt: '2026-10-01',
+        pincode: '520013',
+      }));
+
+  // Sort by displayOrder if available
+  const sortedSolutions = [...rawSolutions].sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+  const activeSolutions = sortedSolutions.slice(0, displayCount);
 
   const activeProjects =
     projects.filter((p) => p.status === 'published').length > 0
       ? projects.filter((p) => p.status === 'published')
       : projectSectors.map((p) => ({
-          id: p.id,
-          title: p.title,
-          sector: p.title,
-          clientName: 'Commercial Enterprise',
-          imageUrl: p.image,
-          description: p.description,
-          bullets: p.bullets,
-          iconType: p.iconType,
-          status: 'published' as const,
-          updatedAt: '2026-10-01',
-        }));
+        id: p.id,
+        title: p.title,
+        sector: p.title,
+        clientName: 'Commercial Enterprise',
+        imageUrl: p.image,
+        description: p.description,
+        bullets: p.bullets,
+        iconType: p.iconType,
+        status: 'published' as const,
+        updatedAt: '2026-10-01',
+      }));
+
+  const handleOpenEnquiry = (title = 'HVAC Turnkey Solution') => {
+    setEnquiryServiceTitle(title);
+    setEnquiryModalOpen(true);
+  };
 
   return (
     <>
@@ -51,7 +69,6 @@ export const SolutionsPage: React.FC = () => {
           PAGE HERO HEADER
           ================================================== */}
       <section className="pt-32 pb-16 bg-[#020b18] text-white relative overflow-hidden">
-        {/* Ambient Cyan Glows & Background Grid */}
         <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-blue-700/20 via-cyan-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -115,26 +132,37 @@ export const SolutionsPage: React.FC = () => {
       </section>
 
       {/* ==================================================
-          MAIN SOLUTIONS CONTAINER: Live from Admin Engine
+          MAIN SOLUTIONS CONTAINER
           ================================================== */}
       <section className="py-12 sm:py-16 bg-[#f4f9fd]">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          
-          {/* Main Enclosed Visual Wrapper */}
+
           <div className="bg-white/95 rounded-3xl p-5 sm:p-8 lg:p-10 border border-blue-100/90 shadow-[0_4px_24px_rgba(3,43,95,0.06)] space-y-12">
-            
-            {/* --------------------------------------------------
-                SECTION 1: OUR AREAS OF EXPERTISE & SOLUTIONS
-                -------------------------------------------------- */}
+
+            {/* SECTION 1: OUR AREAS OF EXPERTISE & SOLUTIONS */}
             <div className="space-y-6">
-              {/* Header Badge */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="bg-gradient-to-r from-[#032b5f] to-[#088395] text-white px-7 sm:px-9 py-2.5 sm:py-3 rounded-r-2xl sm:rounded-2xl font-black text-lg sm:text-xl font-outfit shadow-md tracking-wide">
                   Our Areas of Expertise
                 </div>
-                <span className="text-xs font-semibold text-slate-500 hidden sm:inline-block">
-                  Showing {activeSolutions.length} Solutions
-                </span>
+
+                {/* Configurable display options */}
+                <div className="flex items-center gap-3 text-xs text-slate-600">
+                  <span className="font-semibold">Display:</span>
+                  <select
+                    value={displayCount}
+                    onChange={(e) => setDisplayCount(Number(e.target.value))}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 font-semibold focus:outline-none"
+                  >
+                    <option value={4}>4 Solutions</option>
+                    <option value={8}>8 Solutions</option>
+                    <option value={12}>12 Solutions</option>
+                    <option value={20}>All Solutions</option>
+                  </select>
+                  <span className="text-slate-400">
+                    ({activeSolutions.length} of {rawSolutions.length})
+                  </span>
+                </div>
               </div>
 
               {/* Dynamic Expertise Cards Grid */}
@@ -143,7 +171,7 @@ export const SolutionsPage: React.FC = () => {
                   const itemPhoto =
                     item.imageUrl ||
                     'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80';
-                  
+
                   return (
                     <div
                       key={item.id}
@@ -152,9 +180,15 @@ export const SolutionsPage: React.FC = () => {
                           id: item.id,
                           title: item.title,
                           category: item.category,
+                          customer: item.companyName || item.customer,
                           imageUrl: itemPhoto,
+                          images: item.images,
+                          videoUrl: item.videoUrl,
+                          youtubeUrl: item.youtubeUrl,
+                          instagramUrl: item.instagramUrl,
                           description: item.description,
                           features: item.benefits,
+                          pincode: item.pincode,
                           iconType: 'vrv',
                         })
                       }
@@ -168,6 +202,11 @@ export const SolutionsPage: React.FC = () => {
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors" />
+                        {item.pincode && (
+                          <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-slate-900/80 text-[9px] font-mono text-cyan-300">
+                            {item.pincode}
+                          </div>
+                        )}
                       </div>
 
                       {/* Circular Navy Icon Badge */}
@@ -180,7 +219,6 @@ export const SolutionsPage: React.FC = () => {
                         {item.title}
                       </h3>
 
-                      {/* Subtle Click Indicator on Hover */}
                       <span className="text-[10px] text-cyan-600 font-medium opacity-0 group-hover:opacity-100 transition-opacity mt-1">
                         View Specs →
                       </span>
@@ -193,11 +231,8 @@ export const SolutionsPage: React.FC = () => {
             {/* Separator Line */}
             <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-200 to-transparent my-6" />
 
-            {/* --------------------------------------------------
-                SECTION 2: OUR PROJECTS & IMPLEMENTED CASE STUDIES
-                -------------------------------------------------- */}
+            {/* SECTION 2: OUR PROJECTS & IMPLEMENTED CASE STUDIES */}
             <div className="space-y-6">
-              {/* Header Badge & Subtitle */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-6">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                   <div className="bg-gradient-to-r from-[#032b5f] to-[#088395] text-white px-7 sm:px-9 py-2.5 sm:py-3 rounded-r-2xl sm:rounded-2xl font-black text-lg sm:text-xl font-outfit shadow-md tracking-wide shrink-0 inline-block">
@@ -290,9 +325,7 @@ export const SolutionsPage: React.FC = () => {
 
           </div>
 
-          {/* ==================================================
-              BOTTOM CONSULTATION & PROPOSAL BANNER
-              ================================================== */}
+          {/* BOTTOM CONSULTATION & PROPOSAL BANNER: CTA Changed to Service Enquiry */}
           <div className="rounded-3xl p-8 sm:p-10 bg-gradient-to-r from-[#032b5f] via-[#043673] to-[#088395] text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="space-y-3 max-w-2xl text-center lg:text-left">
               <span className="px-3 py-1 rounded-full bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 text-xs font-mono uppercase tracking-wider">
@@ -307,21 +340,23 @@ export const SolutionsPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => handleOpenEnquiry('Turnkey Commercial HVAC Solution')}
                 className="w-full sm:w-auto px-8 py-4 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group font-outfit"
               >
-                <span>Request Project Proposal</span>
+                <span>Service Enquiry</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
 
-              <Link
-                to="/contact"
+              <button
+                type="button"
+                onClick={() => handleOpenEnquiry('HVAC AMC & Maintenance Enquiry')}
                 className="w-full sm:w-auto px-6 py-4 rounded-full border border-white/40 hover:bg-white/10 text-white font-semibold text-sm tracking-wide transition flex items-center justify-center gap-2 font-outfit"
               >
                 <Phone className="w-4 h-4 text-cyan-300" />
-                <span>Call Engineers</span>
-              </Link>
+                <span>Call Enquiry</span>
+              </button>
             </div>
           </div>
 
@@ -332,6 +367,15 @@ export const SolutionsPage: React.FC = () => {
       <SolutionDetailModal
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
+        onOpenEnquiry={(title) => handleOpenEnquiry(title)}
+      />
+
+      {/* Service Enquiry Modal */}
+      <ServiceEnquiryModal
+        isOpen={enquiryModalOpen}
+        onClose={() => setEnquiryModalOpen(false)}
+        serviceOrSolutionName={enquiryServiceTitle}
+        leadType="Solution"
       />
     </>
   );

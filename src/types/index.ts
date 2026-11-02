@@ -1,6 +1,9 @@
 export type LeadStatus = 'New' | 'Contacted' | 'Follow-up' | 'Qualified' | 'Converted' | 'Lost';
 
 export type LeadSource = 'Website' | 'Instagram' | 'Facebook' | 'Campaign' | 'Advertisement' | 'Other';
+export type LeadSourceChannel = LeadSource;
+
+export type AcquisitionSource = 'Market Data' | 'Website Enquiry' | 'Social Media' | 'Campaign' | 'Referral';
 
 export type LeadCategory = 'Service' | 'Solution';
 
@@ -28,11 +31,59 @@ export interface LeadItem {
   serviceOrSolutionName?: string;
   requirement: string;
   source: LeadSource;
+  acquisitionSource?: AcquisitionSource;
   status: LeadStatus;
   createdAt: string;
   updatedAt: string;
   notes: LeadNote[];
   history: LeadHistoryItem[];
+
+  // Vendor / Extended Details
+  industry?: string;
+  jobType?: string;
+  designation?: string;
+  vendorPhoto?: string;
+}
+
+export interface SocialMediaLinks {
+  instagram?: string;
+  youtube?: string;
+  x?: string;
+  linkedin?: string;
+}
+
+export type CompanyOfficeType = 'Registered Office' | 'Business Office' | 'Branch Office';
+
+export interface CompanyOffice {
+  id: string;
+  name: string;
+  type: CompanyOfficeType;
+  address: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+  mapsLink: string;
+  phone: string;
+  email: string;
+  status: 'Active' | 'Inactive';
+  displayOrder?: number;
+}
+
+export type HighlightCategory = 'Awards' | 'Award' | 'BNI Membership' | 'BNI' | 'ISO Certified Company' | 'ISO' | 'Achievement' | 'Membership' | 'Other';
+
+export interface BusinessHighlight {
+  id: string;
+  title: string;
+  subtitle?: string;
+  category: HighlightCategory;
+  description: string;
+  imageUrl?: string;
+  mediaUrl?: string;
+  linkUrl?: string;
+  badgeText?: string;
+  displayOrder?: number;
+  status: 'published' | 'draft' | 'Active' | 'Inactive';
 }
 
 export interface CompanyInfo {
@@ -59,6 +110,7 @@ export interface CompanyInfo {
   logoType?: 'custom' | 'emblem';
   logoHeight?: number;
   showLogoTagline?: boolean;
+  socialLinks?: SocialMediaLinks;
 }
 
 export interface HomeContent {
@@ -75,6 +127,24 @@ export interface HomeContent {
   promiseContent: string;
   ctaHeading: string;
   ctaSubtitle: string;
+
+  // Configurable About Section on Home
+  coreValuesTitle?: string;
+  coreValuesDesc?: string;
+  coreValuesImageUrl?: string;
+  ourStoryTitle?: string;
+  ourStoryDesc?: string;
+  ourStoryImageUrl?: string;
+  coreValues?: {
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+  };
+  ourStory?: {
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+  };
 }
 
 export interface AboutContent {
@@ -86,16 +156,27 @@ export interface AboutContent {
   approachPoints: { title: string; desc: string }[];
   strengths: { title: string; desc: string }[];
   whyRuveron: { title: string; desc: string }[];
+  coreValuesImageUrl?: string;
+  ourStoryImageUrl?: string;
 }
 
 export interface SolutionItem {
   id: string;
   title: string;
   category: string;
+  companyName?: string; // Company name / customer
+  customer?: string;
   description: string;
   benefits: string[];
   iconName: string;
   imageUrl?: string;
+  images?: string[]; // Multiple images support
+  videoUrl?: string; // Video/media upload
+  youtubeUrl?: string;
+  instagramUrl?: string;
+  implementedProjects?: string;
+  displayOrder?: number;
+  pincode?: string; // 6-digit PIN code field
   status: 'published' | 'draft';
   updatedAt: string;
 }
@@ -122,6 +203,7 @@ export interface ServiceItem {
   features: string[];
   iconName: string;
   imageUrl?: string;
+  displayOrder?: number;
   status: 'published' | 'draft';
   updatedAt: string;
 }
@@ -133,6 +215,8 @@ export interface TestimonialItem {
   company: string;
   testimonial: string;
   photo?: string;
+  videoUrl?: string; // Video upload support
+  displayOrder?: number;
   status: 'published' | 'draft';
   createdAt: string;
 }
@@ -142,8 +226,10 @@ export interface TeamItem {
   name: string;
   designation: string;
   department: string;
-  photo?: string;
+  description?: string; // Added description field
+  photo?: string; // Profile image upload
   linkedin?: string;
+  displayOrder?: number;
   status: 'published' | 'draft';
 }
 
@@ -154,7 +240,10 @@ export interface MediaItem {
   size: string;
   type: string;
   createdAt: string;
+  usedIn?: string[]; // Where asset is used
 }
+
+export type JobStatus = 'draft' | 'published' | 'closed';
 
 export interface CareerJob {
   id: string;
@@ -162,15 +251,20 @@ export interface CareerJob {
   department: string;
   location: string;
   type: 'Full-Time' | 'Part-Time' | 'Contract' | 'Remote';
+  isInternship?: boolean;
   experience: string;
+  salaryRange?: string;
+  skillsRequired?: string[];
+  deadline?: string;
   description: string;
   requirements: string[];
   responsibilities: string[];
-  status: 'published' | 'draft';
+  status: JobStatus;
   postedDate: string;
+  closedDate?: string;
 }
 
-export type ApplicationStatus = 'New' | 'Reviewing' | 'Shortlisted' | 'Rejected';
+export type ApplicationStatus = 'New' | 'Under Review' | 'Shortlisted' | 'Rejected';
 
 export interface JobApplication {
   id: string;
@@ -179,7 +273,21 @@ export interface JobApplication {
   fullName: string;
   email: string;
   phone: string;
+  location?: string;
+  designationApplied?: string;
+
+  // Compensation
+  currentCtcFixed?: string;
+  currentCtcVariable?: string;
+  expectedCtcFixed?: string;
+  expectedCtcVariable?: string;
+
+  // Additional Info
+  jobType?: string;
+  isInternship?: boolean;
   experience: string;
+  skills?: string | string[];
+  noticePeriod?: string;
   currentCompany?: string;
   coverNote: string;
   resumeFileName?: string;
@@ -195,6 +303,7 @@ export interface PartnerItem {
   logoUrl: string;
   websiteUrl?: string;
   description?: string;
+  displayOrder?: number;
   status: 'published' | 'draft';
   updatedAt: string;
 }
@@ -216,6 +325,7 @@ export interface ClientItem {
   websiteUrl?: string;
   description?: string;
   featuredOnHome?: boolean;
+  displayOrder?: number;
   status: 'published' | 'draft';
   updatedAt: string;
 
@@ -290,10 +400,35 @@ export interface TrainingProgramItem {
   updatedAt: string;
 }
 
+export type TrainingBatchStatus = 'Open' | 'Filling Fast' | 'Closed' | 'Upcoming';
+export type BatchStatus = TrainingBatchStatus;
+
+export interface TrainingBatch {
+  id: string;
+  batchName: string;
+  courseTitle: string;
+  courseId?: string;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  enrolledCount: number;
+  location: string;
+  batchSlot: string; // e.g. "1st Batch", "15th Batch", custom
+  slot?: string;
+  trainerName?: string;
+  status: TrainingBatchStatus;
+  createdAt: string;
+}
+
+export type StudentEnrollmentStatus = 'New' | 'Contacted' | 'Enrolled' | 'In Training' | 'Completed' | 'Placed';
+export type EnrollmentProgressStatus = StudentEnrollmentStatus;
+
 export interface TrainingEnrollmentItem {
   id: string;
   programId: string;
   programTitle: string;
+  batchId?: string;
+  batchName?: string;
   fullName: string;
   email: string;
   phone: string;
@@ -302,7 +437,9 @@ export interface TrainingEnrollmentItem {
   state?: string;
   message?: string;
   enrolledAt: string;
-  status: 'New' | 'Contacted' | 'Enrolled' | 'Completed';
+  status: StudentEnrollmentStatus;
+  placementStatus?: 'Seeking' | 'Interviewing' | 'Placed';
+  placedCompany?: string;
 }
 
 export type LogSeverity = 'info' | 'success' | 'warning' | 'error';

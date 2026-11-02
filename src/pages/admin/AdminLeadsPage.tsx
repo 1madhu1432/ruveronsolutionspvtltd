@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext';
+import { PhotoUploader } from '../../components/ui/PhotoUploader';
 import { LeadStatusBadge } from '../../components/ui/Badge';
 import type { LeadItem, LeadStatus, LeadSource, LeadCategory } from '../../types';
 import {
@@ -76,8 +77,9 @@ export const AdminLeadsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | 'Service' | 'Solution'>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [sourceChannelFilter, setSourceChannelFilter] = useState<string>('all');
+  const [acquisitionSourceFilter, setAcquisitionSourceFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
 
   // Day-wise & Date-wise filters
@@ -124,6 +126,7 @@ export const AdminLeadsPage: React.FC = () => {
     requirement: string;
     source: LeadSource;
     status: LeadStatus;
+    vendorPhoto?: string;
   }>({
     fullName: '',
     phone: '',
@@ -135,7 +138,20 @@ export const AdminLeadsPage: React.FC = () => {
     requirement: '',
     source: 'Website',
     status: 'New',
+    vendorPhoto: '',
   });
+
+  // Pipeline Status Dashboard Counts (Module 9.4)
+  const pipelineCounts = useMemo(() => {
+    return {
+      total: leads.length,
+      newLeads: leads.filter((l) => l.status === 'New').length,
+      contacted: leads.filter((l) => l.status === 'Contacted').length,
+      qualified: leads.filter((l) => l.status === 'Qualified').length,
+      converted: leads.filter((l) => l.status === 'Converted').length,
+      lost: leads.filter((l) => l.status === 'Lost').length,
+    };
+  }, [leads]);
 
   // Date helper references
   const today = useMemo(() => new Date(), []);
@@ -221,8 +237,9 @@ export const AdminLeadsPage: React.FC = () => {
         // 3. Status
         const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
 
-        // 4. Source Filter
-        const matchesSource = sourceFilter === 'all' || lead.source === sourceFilter;
+        // 4. Source Channel & Acquisition
+        const matchesChannel = sourceChannelFilter === 'all' || lead.source === sourceChannelFilter;
+        const matchesAcquisition = acquisitionSourceFilter === 'all' || lead.acquisitionSource === acquisitionSourceFilter;
 
         // 5. Location Filter
         const matchesLocation =
@@ -265,7 +282,8 @@ export const AdminLeadsPage: React.FC = () => {
           matchesSearch &&
           matchesType &&
           matchesStatus &&
-          matchesSource &&
+          matchesChannel &&
+          matchesAcquisition &&
           matchesLocation &&
           matchesPreset &&
           matchesExactDate &&
@@ -283,7 +301,8 @@ export const AdminLeadsPage: React.FC = () => {
     searchTerm,
     typeFilter,
     statusFilter,
-    sourceFilter,
+    sourceChannelFilter,
+    acquisitionSourceFilter,
     locationFilter,
     datePreset,
     exactDate,
@@ -358,12 +377,12 @@ export const AdminLeadsPage: React.FC = () => {
       selectedLeadIds.length > 0
         ? `_selected_${selectedLeadIds.length}_leads`
         : datePreset !== 'all'
-        ? `_${datePreset}`
-        : exactDate
-        ? `_date_${exactDate}`
-        : startDate || endDate
-        ? `_range_${startDate || 'start'}_to_${endDate || 'end'}`
-        : '_all_time';
+          ? `_${datePreset}`
+          : exactDate
+            ? `_date_${exactDate}`
+            : startDate || endDate
+              ? `_range_${startDate || 'start'}_to_${endDate || 'end'}`
+              : '_all_time';
 
     exportLeadsToCSV(target, `ruveron_leads${dateSuffix}_${Date.now()}.csv`);
   };
@@ -624,17 +643,52 @@ export const AdminLeadsPage: React.FC = () => {
       )}
 
       {/* ==================================================
+          PIPELINE STATUS DASHBOARD (Module 9.4)
+          ================================================== */}
+      <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 shadow-xl">
+        <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono flex items-center justify-between">
+          <span>Lead Pipeline Status Overview</span>
+          <span className="text-slate-400 font-normal">Active conversion pipeline</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
+            <div className="text-[10px] font-bold uppercase text-slate-400">Total Leads</div>
+            <div className="text-xl font-black text-white mt-1 font-outfit">{pipelineCounts.total}</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-blue-900/40">
+            <div className="text-[10px] font-bold uppercase text-blue-400">New Leads</div>
+            <div className="text-xl font-black text-blue-300 mt-1 font-outfit">{pipelineCounts.newLeads}</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-amber-900/40">
+            <div className="text-[10px] font-bold uppercase text-amber-400">Contacted</div>
+            <div className="text-xl font-black text-amber-300 mt-1 font-outfit">{pipelineCounts.contacted}</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-purple-900/40">
+            <div className="text-[10px] font-bold uppercase text-purple-400">Qualified</div>
+            <div className="text-xl font-black text-purple-300 mt-1 font-outfit">{pipelineCounts.qualified}</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-emerald-900/40">
+            <div className="text-[10px] font-bold uppercase text-emerald-400">Converted</div>
+            <div className="text-xl font-black text-emerald-300 mt-1 font-outfit">{pipelineCounts.converted}</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-rose-900/40">
+            <div className="text-[10px] font-bold uppercase text-rose-400">Lost Leads</div>
+            <div className="text-xl font-black text-rose-300 mt-1 font-outfit">{pipelineCounts.lost}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ==================================================
           DAY-WISE & DATE-WISE KPI METRICS STRIP
           ================================================== */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3.5">
         {/* All Leads */}
         <button
           onClick={() => setDatePreset('all')}
-          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${
-            datePreset === 'all' && !exactDate && !startDate && !endDate
+          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${datePreset === 'all' && !exactDate && !startDate && !endDate
               ? 'bg-slate-900 border-cyan-500 text-white shadow-lg ring-1 ring-cyan-500/50'
               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-          }`}
+            }`}
         >
           <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
             <span>All Leads</span>
@@ -652,11 +706,10 @@ export const AdminLeadsPage: React.FC = () => {
             setStartDate('');
             setEndDate('');
           }}
-          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${
-            datePreset === 'today'
+          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${datePreset === 'today'
               ? 'bg-slate-900 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-          }`}
+            }`}
         >
           <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
@@ -677,11 +730,10 @@ export const AdminLeadsPage: React.FC = () => {
             setStartDate('');
             setEndDate('');
           }}
-          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${
-            datePreset === 'yesterday'
+          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${datePreset === 'yesterday'
               ? 'bg-slate-900 border-blue-500 text-white shadow-lg ring-1 ring-blue-500/50'
               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-          }`}
+            }`}
         >
           <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400 flex items-center justify-between">
             <span>Yesterday</span>
@@ -699,11 +751,10 @@ export const AdminLeadsPage: React.FC = () => {
             setStartDate('');
             setEndDate('');
           }}
-          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${
-            datePreset === 'last7'
+          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden ${datePreset === 'last7'
               ? 'bg-slate-900 border-purple-500 text-white shadow-lg ring-1 ring-purple-500/50'
               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-          }`}
+            }`}
         >
           <div className="text-[11px] font-bold uppercase tracking-wider text-purple-400 flex items-center justify-between">
             <span>Last 7 Days</span>
@@ -721,11 +772,10 @@ export const AdminLeadsPage: React.FC = () => {
             setStartDate('');
             setEndDate('');
           }}
-          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden col-span-2 sm:col-span-1 ${
-            datePreset === 'thisMonth'
+          className={`p-4 rounded-2xl border text-left transition relative overflow-hidden col-span-2 sm:col-span-1 ${datePreset === 'thisMonth'
               ? 'bg-slate-900 border-amber-500 text-white shadow-lg ring-1 ring-amber-500/50'
               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-          }`}
+            }`}
         >
           <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center justify-between">
             <span>This Month</span>
@@ -751,11 +801,10 @@ export const AdminLeadsPage: React.FC = () => {
             {/* View Mode: Group by Date Toggle */}
             <button
               onClick={() => setGroupByDate(!groupByDate)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition ${
-                groupByDate
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 border transition ${groupByDate
                   ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 shadow-sm'
                   : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
-              }`}
+                }`}
             >
               <ListFilter className="w-3.5 h-3.5 text-cyan-400" />
               <span>{groupByDate ? 'Grouped by Day (Active)' : 'Group by Day'}</span>
@@ -793,11 +842,10 @@ export const AdminLeadsPage: React.FC = () => {
                 setStartDate('');
                 setEndDate('');
               }}
-              className={`px-3 py-1.5 rounded-xl font-medium transition ${
-                datePreset === preset.id && !exactDate && !startDate && !endDate
+              className={`px-3 py-1.5 rounded-xl font-medium transition ${datePreset === preset.id && !exactDate && !startDate && !endDate
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
                   : 'bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800'
-              }`}
+                }`}
             >
               {preset.label}
             </button>
@@ -911,8 +959,8 @@ export const AdminLeadsPage: React.FC = () => {
                   {exactDate
                     ? `Exact Date: ${exactDate}`
                     : startDate || endDate
-                    ? `Range: ${startDate || 'Earliest'} to ${endDate || 'Latest'}`
-                    : datePreset.toUpperCase()}
+                      ? `Range: ${startDate || 'Earliest'} to ${endDate || 'Latest'}`
+                      : datePreset.toUpperCase()}
                 </strong>
                 {dayOfWeekFilter !== 'all' && (
                   <span>
@@ -920,7 +968,7 @@ export const AdminLeadsPage: React.FC = () => {
                     (Day:{' '}
                     {
                       ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
-                        parseInt(dayOfWeekFilter)
+                      parseInt(dayOfWeekFilter)
                       ]
                     }
                     )
@@ -947,11 +995,10 @@ export const AdminLeadsPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
             onClick={() => setTypeFilter('all')}
-            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${
-              typeFilter === 'all'
+            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${typeFilter === 'all'
                 ? 'bg-slate-900 border-cyan-500 shadow-md text-white'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5">
               <Filter className="w-4 h-4 text-cyan-400" />
@@ -962,11 +1009,10 @@ export const AdminLeadsPage: React.FC = () => {
 
           <button
             onClick={() => setTypeFilter('Service')}
-            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${
-              typeFilter === 'Service'
+            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${typeFilter === 'Service'
                 ? 'bg-slate-900 border-blue-500 shadow-md text-white'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5">
               <Briefcase className="w-4 h-4 text-blue-400" />
@@ -977,11 +1023,10 @@ export const AdminLeadsPage: React.FC = () => {
 
           <button
             onClick={() => setTypeFilter('Solution')}
-            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${
-              typeFilter === 'Solution'
+            className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${typeFilter === 'Solution'
                 ? 'bg-slate-900 border-purple-500 shadow-md text-white'
                 : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5">
               <Layers className="w-4 h-4 text-purple-400" />
@@ -1047,20 +1092,35 @@ export const AdminLeadsPage: React.FC = () => {
             </select>
           </div>
 
-          {/* Source Filter */}
+          {/* Source Channel Filter (Module 9.2) */}
           <div className="md:col-span-2">
             <select
-              value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
+              value={sourceChannelFilter}
+              onChange={(e) => setSourceChannelFilter(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:ring-2 focus:ring-cyan-500"
             >
-              <option value="all">All Sources</option>
-              <option value="Website">Source: Website</option>
-              <option value="Campaign">Source: Campaign</option>
-              <option value="Facebook">Source: Facebook</option>
-              <option value="Instagram">Source: Instagram</option>
-              <option value="Advertisement">Source: Advertisement</option>
-              <option value="Other">Source: Other</option>
+              <option value="all">Channel: All</option>
+              <option value="Campaign">Campaign</option>
+              <option value="Website">Website</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          {/* Acquisition Source Filter (Module 9.3) */}
+          <div className="md:col-span-2">
+            <select
+              value={acquisitionSourceFilter}
+              onChange={(e) => setAcquisitionSourceFilter(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="all">Acquisition: All</option>
+              <option value="Market Data">Market Data</option>
+              <option value="Website Enquiry">Website Enquiry</option>
+              <option value="Social Media">Social Media</option>
+              <option value="Campaign">Campaign</option>
+              <option value="Referral">Referral</option>
             </select>
           </div>
 
@@ -1126,9 +1186,8 @@ export const AdminLeadsPage: React.FC = () => {
                           return (
                             <tr
                               key={lead.id}
-                              className={`transition ${
-                                isSelected ? 'bg-cyan-950/40' : 'hover:bg-slate-900/50'
-                              }`}
+                              className={`transition ${isSelected ? 'bg-cyan-950/40' : 'hover:bg-slate-900/50'
+                                }`}
                             >
                               <td className="p-3 w-10">
                                 <input
@@ -1139,46 +1198,45 @@ export const AdminLeadsPage: React.FC = () => {
                                 />
                               </td>
                               <td className="p-3 font-mono font-bold text-cyan-400 w-24">{lead.id}</td>
-                            <td className="p-3 w-44">
-                              <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 mb-1 ${
-                                  lead.leadType === 'Service'
-                                    ? 'bg-blue-950 text-blue-300 border border-blue-800'
-                                    : 'bg-purple-950 text-purple-300 border border-purple-800'
-                                }`}
-                              >
-                                {lead.leadType === 'Service' ? (
-                                  <Briefcase className="w-3 h-3" />
-                                ) : (
-                                  <Layers className="w-3 h-3" />
-                                )}
-                                <span>{lead.leadType}</span>
-                              </span>
-                              <div className="font-semibold text-white truncate max-w-[170px]">
-                                {lead.serviceOrSolutionName || 'General Inquiry'}
-                              </div>
-                            </td>
-                            <td className="p-3">
-                              <div className="font-semibold text-white">{lead.fullName}</div>
-                              <div className="text-[11px] text-slate-400">{lead.email}</div>
-                            </td>
-                            <td className="p-3 font-medium text-slate-300">{lead.company}</td>
-                            <td className="p-3">
-                              <LeadStatusBadge status={lead.status} />
-                            </td>
-                            <td className="p-3">{renderDateBadge(lead.createdAt)}</td>
-                            <td className="p-3 text-right">
-                              <button
-                                onClick={() => setSelectedLead(lead)}
-                                className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800"
-                                title="View Details"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              <td className="p-3 w-44">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 mb-1 ${lead.leadType === 'Service'
+                                      ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                                      : 'bg-purple-950 text-purple-300 border border-purple-800'
+                                    }`}
+                                >
+                                  {lead.leadType === 'Service' ? (
+                                    <Briefcase className="w-3 h-3" />
+                                  ) : (
+                                    <Layers className="w-3 h-3" />
+                                  )}
+                                  <span>{lead.leadType}</span>
+                                </span>
+                                <div className="font-semibold text-white truncate max-w-[170px]">
+                                  {lead.serviceOrSolutionName || 'General Inquiry'}
+                                </div>
+                              </td>
+                              <td className="p-3">
+                                <div className="font-semibold text-white">{lead.fullName}</div>
+                                <div className="text-[11px] text-slate-400">{lead.email}</div>
+                              </td>
+                              <td className="p-3 font-medium text-slate-300">{lead.company}</td>
+                              <td className="p-3">
+                                <LeadStatusBadge status={lead.status} />
+                              </td>
+                              <td className="p-3">{renderDateBadge(lead.createdAt)}</td>
+                              <td className="p-3 text-right">
+                                <button
+                                  onClick={() => setSelectedLead(lead)}
+                                  className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800"
+                                  title="View Details"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -1224,9 +1282,8 @@ export const AdminLeadsPage: React.FC = () => {
                   return (
                     <tr
                       key={lead.id}
-                      className={`transition group ${
-                        isSelected ? 'bg-cyan-950/40' : 'hover:bg-slate-900/60'
-                      }`}
+                      className={`transition group ${isSelected ? 'bg-cyan-950/40' : 'hover:bg-slate-900/60'
+                        }`}
                     >
                       <td className="p-3.5 w-10">
                         <input
@@ -1240,11 +1297,10 @@ export const AdminLeadsPage: React.FC = () => {
                       <td className="p-3.5">
                         <div className="flex items-center gap-1.5 mb-1">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                              isService
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${isService
                                 ? 'bg-blue-950 text-blue-300 border border-blue-800'
                                 : 'bg-purple-950 text-purple-300 border border-purple-800'
-                            }`}
+                              }`}
                           >
                             {isService ? <Briefcase className="w-3 h-3" /> : <Layers className="w-3 h-3" />}
                             <span>{lead.leadType || 'Service'}</span>
@@ -1310,11 +1366,10 @@ export const AdminLeadsPage: React.FC = () => {
                 </span>
                 <h3 className="text-lg font-bold">{selectedLead.fullName}</h3>
                 <span
-                  className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                    selectedLead.leadType === 'Service'
+                  className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${selectedLead.leadType === 'Service'
                       ? 'bg-blue-950 text-blue-300 border border-blue-800'
                       : 'bg-purple-950 text-purple-300 border border-purple-800'
-                  }`}
+                    }`}
                 >
                   {selectedLead.leadType === 'Service' ? (
                     <Briefcase className="w-3.5 h-3.5" />
@@ -1363,11 +1418,10 @@ export const AdminLeadsPage: React.FC = () => {
                     <button
                       key={st}
                       onClick={() => handleStatusChangeInModal(st)}
-                      className={`px-3 py-1.5 rounded-lg font-semibold transition ${
-                        selectedLead.status === st
+                      className={`px-3 py-1.5 rounded-lg font-semibold transition ${selectedLead.status === st
                           ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
                           : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800'
-                      }`}
+                        }`}
                     >
                       {st}
                     </button>
@@ -1499,11 +1553,10 @@ export const AdminLeadsPage: React.FC = () => {
                         serviceOrSolutionName: services[0]?.name || 'Recruitment & Talent Acquisition',
                       })
                     }
-                    className={`py-2.5 px-3 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${
-                      newLeadForm.leadType === 'Service'
+                    className={`py-2.5 px-3 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${newLeadForm.leadType === 'Service'
                         ? 'bg-blue-900/60 border-blue-500 text-white'
                         : 'bg-slate-950 border-slate-800 text-slate-400'
-                    }`}
+                      }`}
                   >
                     <Briefcase className="w-4 h-4 text-blue-400" />
                     <span>Service Lead</span>
@@ -1518,11 +1571,10 @@ export const AdminLeadsPage: React.FC = () => {
                         serviceOrSolutionName: solutions[0]?.title || 'Workforce Solutions',
                       })
                     }
-                    className={`py-2.5 px-3 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${
-                      newLeadForm.leadType === 'Solution'
+                    className={`py-2.5 px-3 rounded-xl border font-bold flex items-center justify-center gap-2 transition ${newLeadForm.leadType === 'Solution'
                         ? 'bg-purple-900/60 border-purple-500 text-white'
                         : 'bg-slate-950 border-slate-800 text-slate-400'
-                    }`}
+                      }`}
                   >
                     <Layers className="w-4 h-4 text-purple-400" />
                     <span>Solution Lead</span>
@@ -1542,15 +1594,15 @@ export const AdminLeadsPage: React.FC = () => {
                 >
                   {newLeadForm.leadType === 'Service'
                     ? services.map((s) => (
-                        <option key={s.id} value={s.name}>
-                          {s.name}
-                        </option>
-                      ))
+                      <option key={s.id} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))
                     : solutions.map((sol) => (
-                        <option key={sol.id} value={sol.title}>
-                          {sol.title}
-                        </option>
-                      ))}
+                      <option key={sol.id} value={sol.title}>
+                        {sol.title}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -1676,6 +1728,17 @@ export const AdminLeadsPage: React.FC = () => {
                 />
               </div>
 
+              {/* Vendor / Lead Photo Upload (Module 9.5) */}
+              <div>
+                <PhotoUploader
+                  value={newLeadForm.vendorPhoto || ''}
+                  onChange={(url) => setNewLeadForm({ ...newLeadForm, vendorPhoto: url })}
+                  label="Vendor / Contact Document Photo"
+                  aspect="avatar"
+                  helpText="Upload vendor logo, ID card, or work document (PNG/JPG up to 10MB)"
+                />
+              </div>
+
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
@@ -1780,11 +1843,10 @@ export const AdminLeadsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExportScope('filtered')}
-                    className={`p-3 rounded-xl border text-left transition ${
-                      exportScope === 'filtered'
+                    className={`p-3 rounded-xl border text-left transition ${exportScope === 'filtered'
                         ? 'bg-cyan-500/15 border-cyan-500 text-white shadow-md'
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                      }`}
                   >
                     <div className="font-bold text-sm text-cyan-300">{filteredLeads.length} Leads</div>
                     <div className="font-semibold text-xs mt-0.5">Current Filters</div>
@@ -1796,11 +1858,10 @@ export const AdminLeadsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExportScope('all')}
-                    className={`p-3 rounded-xl border text-left transition ${
-                      exportScope === 'all'
+                    className={`p-3 rounded-xl border text-left transition ${exportScope === 'all'
                         ? 'bg-cyan-500/15 border-cyan-500 text-white shadow-md'
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                      }`}
                   >
                     <div className="font-bold text-sm text-blue-400">{leads.length} Leads</div>
                     <div className="font-semibold text-xs mt-0.5">All Database Leads</div>
@@ -1813,13 +1874,12 @@ export const AdminLeadsPage: React.FC = () => {
                     type="button"
                     disabled={selectedLeadIds.length === 0}
                     onClick={() => setExportScope('selected')}
-                    className={`p-3 rounded-xl border text-left transition ${
-                      selectedLeadIds.length === 0
+                    className={`p-3 rounded-xl border text-left transition ${selectedLeadIds.length === 0
                         ? 'opacity-40 cursor-not-allowed bg-slate-950 border-slate-800 text-slate-500'
                         : exportScope === 'selected'
-                        ? 'bg-cyan-500/15 border-cyan-500 text-white shadow-md'
-                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                          ? 'bg-cyan-500/15 border-cyan-500 text-white shadow-md'
+                          : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                      }`}
                   >
                     <div className="font-bold text-sm text-purple-400">{selectedLeadIds.length} Leads</div>
                     <div className="font-semibold text-xs mt-0.5">Selected Rows Only</div>
@@ -1841,11 +1901,10 @@ export const AdminLeadsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExportFormat('csv')}
-                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${
-                      exportFormat === 'csv'
+                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${exportFormat === 'csv'
                         ? 'bg-emerald-500/15 border-emerald-500 text-white shadow-md'
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                      }`}
                   >
                     <FileSpreadsheet className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                     <div>
@@ -1859,11 +1918,10 @@ export const AdminLeadsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExportFormat('json')}
-                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${
-                      exportFormat === 'json'
+                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${exportFormat === 'json'
                         ? 'bg-cyan-500/15 border-cyan-500 text-white shadow-md'
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                      }`}
                   >
                     <FileJson className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
                     <div>
@@ -1877,11 +1935,10 @@ export const AdminLeadsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setExportFormat('print')}
-                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${
-                      exportFormat === 'print'
+                    className={`p-3 rounded-xl border text-left transition flex items-start gap-2.5 ${exportFormat === 'print'
                         ? 'bg-blue-500/15 border-blue-500 text-white shadow-md'
                         : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
-                    }`}
+                      }`}
                   >
                     <Printer className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
@@ -1969,8 +2026,8 @@ export const AdminLeadsPage: React.FC = () => {
                   {exportScope === 'selected'
                     ? selectedLeadIds.length
                     : exportScope === 'all'
-                    ? leads.length
-                    : filteredLeads.length}
+                      ? leads.length
+                      : filteredLeads.length}
                 </strong>{' '}
                 records
               </span>
@@ -2128,9 +2185,8 @@ export const AdminLeadsPage: React.FC = () => {
                                 <td className="p-2">{l.phone}</td>
                                 <td className="p-2 text-slate-400 truncate max-w-[120px]">{l.location}</td>
                                 <td className="p-2">
-                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                                    l.leadType === 'Solution' ? 'bg-purple-950 text-purple-300' : 'bg-blue-950 text-blue-300'
-                                  }`}>
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${l.leadType === 'Solution' ? 'bg-purple-950 text-purple-300' : 'bg-blue-950 text-blue-300'
+                                    }`}>
                                     {l.leadType}
                                   </span>
                                 </td>
@@ -2160,11 +2216,10 @@ export const AdminLeadsPage: React.FC = () => {
                 type="button"
                 disabled={!parsedImportResult || parsedImportResult.validLeads.length === 0}
                 onClick={handleConfirmImport}
-                className={`px-5 py-2 rounded-xl font-bold transition flex items-center gap-2 ${
-                  !parsedImportResult || parsedImportResult.validLeads.length === 0
+                className={`px-5 py-2 rounded-xl font-bold transition flex items-center gap-2 ${!parsedImportResult || parsedImportResult.validLeads.length === 0
                     ? 'opacity-40 cursor-not-allowed bg-slate-800 text-slate-500'
                     : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-500/20'
-                }`}
+                  }`}
               >
                 <Upload className="w-4 h-4" />
                 <span>

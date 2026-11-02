@@ -10,6 +10,7 @@ import type {
   MediaItem,
   LeadItem,
   LeadStatus,
+  LeadSourceChannel,
   SEOSettings,
   SEOPageData,
   CareerJob,
@@ -21,10 +22,15 @@ import type {
   SolutionProject,
   TrainingProgramItem,
   TrainingEnrollmentItem,
+  CompanyOffice,
+  BusinessHighlight,
+  TrainingBatch,
   SystemLogItem,
 } from '../types';
 import {
   initialCompanyInfo,
+  initialCompanyOffices,
+  initialBusinessHighlights,
   initialHomeContent,
   initialAboutContent,
   initialSolutions,
@@ -42,7 +48,10 @@ import {
   initialSystemLogs,
 } from '../data/initialData';
 import { initialLocations } from '../data/locations';
-import { initialTrainingPrograms, initialTrainingEnrollments } from '../data/trainingData';
+import { initialTrainingPrograms, initialTrainingEnrollments,
+  initialTrainingBatches,
+  initialBatchSlots,
+} from '../data/trainingData';
 import { getStorageItem, setStorageItem } from '../utils/storage';
 
 interface DataContextType {
@@ -124,6 +133,8 @@ interface DataContextType {
     requirement: string;
     leadType?: 'Service' | 'Solution';
     serviceOrSolutionName?: string;
+    source?: LeadSourceChannel;
+    acquisitionSource?: string;
   }) => LeadItem;
   addLeadDirect: (lead: Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>) => void;
   bulkImportLeads: (items: Array<Omit<LeadItem, 'id' | 'createdAt' | 'updatedAt' | 'notes' | 'history'>>) => number;
@@ -148,6 +159,26 @@ interface DataContextType {
   logs: SystemLogItem[];
   addLog: (log: Omit<SystemLogItem, 'id' | 'timestamp'>) => void;
   clearLogs: () => void;
+
+  companyOffices: CompanyOffice[];
+  addCompanyOffice: (office: Omit<CompanyOffice, 'id'>) => void;
+  updateCompanyOffice: (id: string, office: Partial<CompanyOffice>) => void;
+  deleteCompanyOffice: (id: string) => void;
+
+  businessHighlights: BusinessHighlight[];
+  addBusinessHighlight: (highlight: Omit<BusinessHighlight, 'id'>) => void;
+  updateBusinessHighlight: (id: string, highlight: Partial<BusinessHighlight>) => void;
+  deleteBusinessHighlight: (id: string) => void;
+
+  trainingBatches: TrainingBatch[];
+  addTrainingBatch: (batch: Omit<TrainingBatch, 'id' | 'createdAt'>) => void;
+  updateTrainingBatch: (id: string, batch: Partial<TrainingBatch>) => void;
+  deleteTrainingBatch: (id: string) => void;
+
+  trainingBatchSlots: string[];
+  addBatchSlot: (slot: string) => void;
+  addTrainingBatchSlot: (slot: string) => void;
+  bulkImportStudents: (items: Array<Omit<TrainingEnrollmentItem, 'id' | 'enrolledAt'>>) => number;
   
   resetToDefaults: () => void;
 }
@@ -209,6 +240,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [trainingEnrollments, setTrainingEnrollmentsState] = useState<TrainingEnrollmentItem[]>(() =>
     getStorageItem('ruveron_training_enrollments', initialTrainingEnrollments)
   );
+  const [companyOffices, setCompanyOfficesState] = useState<CompanyOffice[]>(() =>
+    getStorageItem('ruveron_company_offices', initialCompanyOffices)
+  );
+  const [businessHighlights, setBusinessHighlightsState] = useState<BusinessHighlight[]>(() =>
+    getStorageItem('ruveron_business_highlights', initialBusinessHighlights)
+  );
+  const [trainingBatches, setTrainingBatchesState] = useState<TrainingBatch[]>(() =>
+    getStorageItem('ruveron_training_batches', initialTrainingBatches)
+  );
+  const [trainingBatchSlots, setTrainingBatchSlotsState] = useState<string[]>(() =>
+    getStorageItem('ruveron_training_batch_slots', initialBatchSlots)
+  );
+
   const [logs, setLogsState] = useState<SystemLogItem[]>(() =>
     getStorageItem('ruveron_system_logs', initialSystemLogs)
   );
@@ -233,6 +277,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => setStorageItem('ruveron_seo_settings', seoSettings), [seoSettings]);
   useEffect(() => setStorageItem('ruveron_locations', locations), [locations]);
   useEffect(() => setStorageItem('ruveron_system_logs', logs), [logs]);
+  useEffect(() => setStorageItem('ruveron_company_offices', companyOffices), [companyOffices]);
+  useEffect(() => setStorageItem('ruveron_business_highlights', businessHighlights), [businessHighlights]);
+  useEffect(() => setStorageItem('ruveron_training_batches', trainingBatches), [trainingBatches]);
+  useEffect(() => setStorageItem('ruveron_training_batch_slots', trainingBatchSlots), [trainingBatchSlots]);
 
   const addLog = (logData: Omit<SystemLogItem, 'id' | 'timestamp'>) => {
     const newLog: SystemLogItem = {
@@ -552,6 +600,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     requirement: string;
     leadType?: 'Service' | 'Solution';
     serviceOrSolutionName?: string;
+    source?: LeadSourceChannel;
+    acquisitionSource?: string;
   }): LeadItem => {
     const now = new Date().toISOString();
     const leadId = `LEAD-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -566,7 +616,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       leadType: category,
       serviceOrSolutionName: formData.serviceOrSolutionName || (category === 'Service' ? 'General Service Inquiry' : 'General Solution Inquiry'),
       requirement: formData.requirement,
-      source: 'Website',
+      source: formData.source || 'Website',
+      acquisitionSource: (formData.acquisitionSource as any) || 'Website Enquiry',
       status: 'New',
       createdAt: now,
       updatedAt: now,
@@ -790,7 +841,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addTrainingEnrollment = (
-    item: Omit<TrainingEnrollmentItem, 'id' | 'enrolledAt' | 'status'>
+    item: Omit<TrainingEnrollmentItem,
+'id' | 'enrolledAt' | 'status'>
   ) => {
     const newEnr: TrainingEnrollmentItem = {
       ...item,
@@ -823,6 +875,158 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTrainingEnrollmentsState((prev) => prev.filter((e) => e.id !== id));
   };
 
+  // Company Offices Management
+  const addCompanyOffice = (officeData: Omit<CompanyOffice, 'id'>) => {
+    const newOffice: CompanyOffice = {
+      ...officeData,
+      id: `off-${Date.now()}`,
+    };
+    setCompanyOfficesState((prev) => [...prev, newOffice]);
+    addLog({
+      action: 'Company Office Added',
+      category: 'Locations',
+      severity: 'info',
+      user: 'Admin',
+      details: `Added new corporate office: ${officeData.name} (${officeData.type})`,
+    });
+  };
+
+  const updateCompanyOffice = (id: string, officeData: Partial<CompanyOffice>) => {
+    setCompanyOfficesState((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, ...officeData } : o))
+    );
+    addLog({
+      action: 'Company Office Updated',
+      category: 'Locations',
+      severity: 'info',
+      user: 'Admin',
+      details: `Updated office details for ID: ${id}`,
+    });
+  };
+
+  const deleteCompanyOffice = (id: string) => {
+    const toDelete = companyOffices.find((o) => o.id === id);
+    setCompanyOfficesState((prev) => prev.filter((o) => o.id !== id));
+    addLog({
+      action: 'Company Office Deleted',
+      category: 'Locations',
+      severity: 'warning',
+      user: 'Admin',
+      details: `Deleted corporate office: ${toDelete?.name || id}`,
+    });
+  };
+
+  // Business Highlights Management
+  const addBusinessHighlight = (hlData: Omit<BusinessHighlight, 'id'>) => {
+    const newHl: BusinessHighlight = {
+      ...hlData,
+      id: `hl-${Date.now()}`,
+    };
+    setBusinessHighlightsState((prev) => [...prev, newHl]);
+    addLog({
+      action: 'Business Highlight Added',
+      category: 'System',
+      severity: 'info',
+      user: 'Admin',
+      details: `Added highlight: ${hlData.title} (${hlData.category})`,
+    });
+  };
+
+  const updateBusinessHighlight = (id: string, hlData: Partial<BusinessHighlight>) => {
+    setBusinessHighlightsState((prev) =>
+      prev.map((h) => (h.id === id ? { ...h, ...hlData } : h))
+    );
+    addLog({
+      action: 'Business Highlight Updated',
+      category: 'System',
+      severity: 'info',
+      user: 'Admin',
+      details: `Updated highlight ID: ${id}`,
+    });
+  };
+
+  const deleteBusinessHighlight = (id: string) => {
+    setBusinessHighlightsState((prev) => prev.filter((h) => h.id !== id));
+    addLog({
+      action: 'Business Highlight Deleted',
+      category: 'System',
+      severity: 'warning',
+      user: 'Admin',
+      details: `Deleted highlight ID: ${id}`,
+    });
+  };
+
+  // Training Batches Management
+  const addTrainingBatch = (batchData: Omit<TrainingBatch, 'id' | 'createdAt'>) => {
+    const newBatch: TrainingBatch = {
+      ...batchData,
+      id: `batch-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    setTrainingBatchesState((prev) => [newBatch, ...prev]);
+    addLog({
+      action: 'Training Batch Created',
+      category: 'Training',
+      severity: 'info',
+      user: 'Admin',
+      details: `Created batch "${batchData.batchName}" for ${batchData.courseTitle}`,
+    });
+  };
+
+  const updateTrainingBatch = (id: string, batchData: Partial<TrainingBatch>) => {
+    setTrainingBatchesState((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, ...batchData } : b))
+    );
+    addLog({
+      action: 'Training Batch Updated',
+      category: 'Training',
+      severity: 'info',
+      user: 'Admin',
+      details: `Updated batch ID: ${id}`,
+    });
+  };
+
+  const deleteTrainingBatch = (id: string) => {
+    setTrainingBatchesState((prev) => prev.filter((b) => b.id !== id));
+    addLog({
+      action: 'Training Batch Deleted',
+      category: 'Training',
+      severity: 'warning',
+      user: 'Admin',
+      details: `Deleted batch ID: ${id}`,
+    });
+  };
+
+  const addBatchSlot = (slot: string) => {
+    if (!slot.trim() || trainingBatchSlots.includes(slot.trim())) return;
+    setTrainingBatchSlotsState((prev) => [...prev, slot.trim()]);
+    addLog({
+      action: 'Batch Slot Added',
+      category: 'Training',
+      severity: 'info',
+      user: 'Admin',
+      details: `Added new batch slot option: "${slot.trim()}"`,
+    });
+  };
+
+  const bulkImportStudents = (items: Array<Omit<TrainingEnrollmentItem, 'id' | 'enrolledAt'>>) => {
+    const newEnrollments: TrainingEnrollmentItem[] = items.map((item, idx) => ({
+      ...item,
+      id: `enr-imp-${Date.now()}-${idx}`,
+      enrolledAt: new Date().toISOString(),
+      status: item.status || 'Enrolled',
+    }));
+    setTrainingEnrollmentsState((prev) => [...newEnrollments, ...prev]);
+    addLog({
+      action: 'Bulk Students Imported',
+      category: 'Training',
+      severity: 'success',
+      user: 'Admin',
+      details: `Successfully imported ${newEnrollments.length} student records`,
+    });
+    return newEnrollments.length;
+  };
+
   const resetToDefaults = () => {
     setCompanyInfoState(initialCompanyInfo);
     setHomeContentState(initialHomeContent);
@@ -843,6 +1047,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTrainingProgramsState(initialTrainingPrograms);
     setTrainingEnrollmentsState(initialTrainingEnrollments);
     setLogsState(initialSystemLogs);
+    setCompanyOfficesState(initialCompanyOffices);
+    setBusinessHighlightsState(initialBusinessHighlights);
+    setTrainingBatchesState(initialTrainingBatches);
+    setTrainingBatchSlotsState(initialBatchSlots);
     localStorage.clear();
   };
 
@@ -926,6 +1134,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logs,
         addLog,
         clearLogs,
+        companyOffices,
+        addCompanyOffice,
+        updateCompanyOffice,
+        deleteCompanyOffice,
+        businessHighlights,
+        addBusinessHighlight,
+        updateBusinessHighlight,
+        deleteBusinessHighlight,
+        trainingBatches,
+        addTrainingBatch,
+        updateTrainingBatch,
+        deleteTrainingBatch,
+        trainingBatchSlots,
+        addBatchSlot,
+        addTrainingBatchSlot: addBatchSlot,
+        bulkImportStudents,
         resetToDefaults,
       }}
     >

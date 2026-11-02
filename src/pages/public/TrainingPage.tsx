@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   GraduationCap,
   Award,
@@ -18,6 +17,7 @@ import {
 import { SEOHead } from '../../components/common/SEOHead';
 import { useData } from '../../context/DataContext';
 import type { TrainingProgramItem } from '../../types';
+import { ServiceEnquiryModal } from '../../components/common/ServiceEnquiryModal';
 
 export const TrainingPage: React.FC = () => {
   const { trainingPrograms, addTrainingEnrollment } = useData();
@@ -32,6 +32,8 @@ export const TrainingPage: React.FC = () => {
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [enrollingProgram, setEnrollingProgram] = useState<TrainingProgramItem | null>(null);
   const [enrollSuccess, setEnrollSuccess] = useState(false);
+  const [partnershipModalOpen, setPartnershipModalOpen] = useState(false);
+  const [partnerType, setPartnerType] = useState('Partner with Academy');
 
   const [enrollForm, setEnrollForm] = useState({
     fullName: '',
@@ -309,7 +311,7 @@ export const TrainingPage: React.FC = () => {
                       <div className="text-right">
                         <div className="text-[10px] text-slate-400">Course Fee</div>
                         <div className="font-bold text-[#032b5f] font-mono">
-                          {prog.fee || 'Free / Govt Merit'}
+                          {prog.fee || 'Corporate Sponsored'}
                         </div>
                       </div>
                     </div>
@@ -366,21 +368,29 @@ export const TrainingPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-              <Link
-                to="/contact"
-                className="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group font-outfit"
+              <button
+                type="button"
+                onClick={() => {
+                  setPartnerType('Partner with Academy');
+                  setPartnershipModalOpen(true);
+                }}
+                className="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-sm tracking-wide shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group font-outfit cursor-pointer"
               >
                 <span>Partner With Academy</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
 
-              <Link
-                to="/contact"
-                className="w-full sm:w-auto px-6 py-4 rounded-full border border-white/40 hover:bg-white/10 text-white font-semibold text-sm tracking-wide transition flex items-center justify-center gap-2 font-outfit"
+              <button
+                type="button"
+                onClick={() => {
+                  setPartnerType('Call Training Department');
+                  setPartnershipModalOpen(true);
+                }}
+                className="w-full sm:w-auto px-6 py-4 rounded-full border border-white/40 hover:bg-white/10 text-white font-semibold text-sm tracking-wide transition flex items-center justify-center gap-2 font-outfit cursor-pointer"
               >
                 <Phone className="w-4 h-4 text-emerald-300" />
                 <span>Call Training Dept</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -629,6 +639,13 @@ export const TrainingPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ServiceEnquiryModal
+        isOpen={partnershipModalOpen}
+        onClose={() => setPartnershipModalOpen(false)}
+        defaultService={partnerType}
+        defaultCategory="Service"
+      />
     </>
   );
 };
