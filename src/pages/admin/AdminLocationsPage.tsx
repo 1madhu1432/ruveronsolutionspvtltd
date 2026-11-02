@@ -408,86 +408,108 @@ export const AdminLocationsPage: React.FC = () => {
           ================================================== */}
       {activeLocationTab === 'offices' ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {companyOffices?.map((off) => (
-              <div
-                key={off.id}
-                className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-slate-700 transition"
-              >
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${off.type === 'Registered Office'
-                        ? 'bg-purple-950 text-purple-300 border border-purple-800'
-                        : off.type === 'Business Office'
-                          ? 'bg-cyan-950 text-cyan-300 border border-cyan-800'
-                          : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                      }`}
-                  >
-                    {off.type}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded ${off.status === 'Active'
-                        ? 'bg-emerald-950 text-emerald-300'
-                        : 'bg-slate-800 text-slate-400'
-                      }`}
-                  >
-                    {off.status}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="font-bold text-white text-base">{off.name}</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">{off.address}</p>
-                </div>
-
-                <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-500 text-[11px]">Phone:</span>
-                    <span className="font-mono">{off.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-500 text-[11px]">Email:</span>
-                    <span className="text-cyan-400">{off.email}</span>
-                  </div>
-                  {off.mapsLink && (
-                    <div className="pt-1">
-                      <a
-                        href={off.mapsLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span>View on Google Maps</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
-                  <button
-                    onClick={() => handleOpenEditOffice(off)}
-                    className="p-1.5 rounded-lg bg-slate-950 text-cyan-400 hover:bg-slate-800 transition"
-                    title="Edit Office Details"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`Delete office ${off.name}?`)) {
-                        deleteCompanyOffice(off.id);
-                      }
-                    }}
-                    className="p-1.5 rounded-lg bg-slate-950 text-rose-400 hover:bg-rose-950/80 transition"
-                    title="Delete Office"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+          {(!companyOffices || companyOffices.length === 0) ? (
+            <div className="p-8 rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 text-center flex flex-col items-center justify-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <Building2 className="w-6 h-6" />
               </div>
-            ))}
-          </div>
+              <div className="space-y-1">
+                <h4 className="text-white font-bold text-sm">No Corporate Offices Configured</h4>
+                <p className="text-xs text-slate-400 max-w-md">
+                  Configure your Registered Office, Business Office, and Branch Offices with address, Google Maps link, and contact details.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenAddOffice}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-95 shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Corporate Office</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {companyOffices.map((off) => (
+                <div
+                  key={off.id}
+                  className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-slate-700 transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${off.type === 'Registered Office'
+                          ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                          : off.type === 'Business Office'
+                            ? 'bg-cyan-950 text-cyan-300 border border-cyan-800'
+                            : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                        }`}
+                    >
+                      {off.type}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded ${off.status === 'Active'
+                          ? 'bg-emerald-950 text-emerald-300'
+                          : 'bg-slate-800 text-slate-400'
+                        }`}
+                    >
+                      {off.status}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-white text-base">{off.name}</h3>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">{off.address}</p>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500 text-[11px]">Phone:</span>
+                      <span className="font-mono">{off.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-500 text-[11px]">Email:</span>
+                      <span className="text-cyan-400">{off.email}</span>
+                    </div>
+                    {off.mapsLink && (
+                      <div className="pt-1">
+                        <a
+                          href={off.mapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>View on Google Maps</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                    <button
+                      onClick={() => handleOpenEditOffice(off)}
+                      className="p-1.5 rounded-lg bg-slate-950 text-cyan-400 hover:bg-slate-800 transition"
+                      title="Edit Office Details"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete office ${off.name}?`)) {
+                          deleteCompanyOffice(off.id);
+                        }
+                      }}
+                      className="p-1.5 rounded-lg bg-slate-950 text-rose-400 hover:bg-rose-950/80 transition"
+                      title="Delete Office"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-6">

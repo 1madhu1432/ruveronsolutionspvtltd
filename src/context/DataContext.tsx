@@ -169,6 +169,7 @@ interface DataContextType {
   addBusinessHighlight: (highlight: Omit<BusinessHighlight, 'id'>) => void;
   updateBusinessHighlight: (id: string, highlight: Partial<BusinessHighlight>) => void;
   deleteBusinessHighlight: (id: string) => void;
+  resetBusinessHighlightsToDefault: () => void;
 
   trainingBatches: TrainingBatch[];
   addTrainingBatch: (batch: Omit<TrainingBatch, 'id' | 'createdAt'>) => void;
@@ -240,12 +241,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [trainingEnrollments, setTrainingEnrollmentsState] = useState<TrainingEnrollmentItem[]>(() =>
     getStorageItem('ruveron_training_enrollments', initialTrainingEnrollments)
   );
-  const [companyOffices, setCompanyOfficesState] = useState<CompanyOffice[]>(() =>
-    getStorageItem('ruveron_company_offices', initialCompanyOffices)
-  );
-  const [businessHighlights, setBusinessHighlightsState] = useState<BusinessHighlight[]>(() =>
-    getStorageItem('ruveron_business_highlights', initialBusinessHighlights)
-  );
+  const [companyOffices, setCompanyOfficesState] = useState<CompanyOffice[]>(() => {
+    const stored = getStorageItem('ruveron_company_offices', initialCompanyOffices);
+    return Array.isArray(stored) && stored.length > 0 ? stored : initialCompanyOffices;
+  });
+  const [businessHighlights, setBusinessHighlightsState] = useState<BusinessHighlight[]>(() => {
+    const stored = getStorageItem('ruveron_business_highlights', initialBusinessHighlights);
+    return Array.isArray(stored) && stored.length > 0 ? stored : initialBusinessHighlights;
+  });
   const [trainingBatches, setTrainingBatchesState] = useState<TrainingBatch[]>(() =>
     getStorageItem('ruveron_training_batches', initialTrainingBatches)
   );
@@ -956,6 +959,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const resetBusinessHighlightsToDefault = () => {
+    setBusinessHighlightsState(initialBusinessHighlights);
+    setStorageItem('ruveron_business_highlights', initialBusinessHighlights);
+    addLog({
+      action: 'Business Highlights Restored',
+      category: 'System',
+      severity: 'info',
+      user: 'Admin',
+      details: 'Restored default corporate highlights (Awards, BNI Membership, ISO 9001)',
+    });
+  };
+
   // Training Batches Management
   const addTrainingBatch = (batchData: Omit<TrainingBatch, 'id' | 'createdAt'>) => {
     const newBatch: TrainingBatch = {
@@ -1142,6 +1157,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addBusinessHighlight,
         updateBusinessHighlight,
         deleteBusinessHighlight,
+        resetBusinessHighlightsToDefault,
         trainingBatches,
         addTrainingBatch,
         updateTrainingBatch,

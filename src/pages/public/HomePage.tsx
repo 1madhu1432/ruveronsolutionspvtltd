@@ -143,7 +143,7 @@ export const HomePage: React.FC = () => {
     linkedin: 'https://linkedin.com/company/ruveron-solutions-pvt-ltd',
   };
 
-  const publishedHighlights = businessHighlights.filter((h) => h.status === 'published');
+  const publishedHighlights = businessHighlights.filter((h) => h.status === 'published' || (h.status as string) === 'Active');
   const activeOffices = companyOffices.filter((o) => o.status === 'Active');
 
   return (

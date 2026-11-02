@@ -11,6 +11,7 @@ import {
   Sparkles,
   Building,
   BookOpen,
+  RotateCcw,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import { PhotoUploader } from '../../components/ui/PhotoUploader';
@@ -24,6 +25,7 @@ export const AdminHomeContentPage: React.FC = () => {
     addBusinessHighlight,
     updateBusinessHighlight,
     deleteBusinessHighlight,
+    resetBusinessHighlightsToDefault,
   } = useData();
 
   const [formData, setFormData] = useState({ ...homeContent });
@@ -135,61 +137,121 @@ export const AdminHomeContentPage: React.FC = () => {
               Highlight company credentials, awards, BNI networking alliances, and ISO 9001 certifications.
             </p>
           </div>
-          <span className="text-xs text-slate-400 font-mono">{businessHighlights?.length || 0} active credentials</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {businessHighlights && businessHighlights.map((hl) => (
-            <div
-              key={hl.id}
-              className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-3 shadow-lg"
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-slate-400 font-mono px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800">
+              {businessHighlights?.length || 0} active credentials
+            </span>
+            <button
+              type="button"
+              onClick={handleOpenAddHighlight}
+              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-xs font-bold flex items-center gap-1.5 shadow hover:opacity-95 transition"
             >
-              <div className="space-y-2.5">
-                <div className="h-32 rounded-xl overflow-hidden bg-slate-950 relative">
-                  <img src={hl.imageUrl} alt={hl.title} className="w-full h-full object-cover" />
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/85 text-amber-300 font-mono text-[10px] font-bold">
-                    {hl.category}
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-white text-sm">{hl.title}</h4>
-                  <div className="text-[11px] text-cyan-400 font-medium">{hl.subtitle}</div>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">{hl.description}</p>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                  (hl.status === 'Active' || (hl.status as string) === 'published') ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-400'
-                }`}>
-                  {hl.status}
-                </span>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => handleOpenEditHighlight(hl)}
-                    className="p-1.5 rounded-lg bg-slate-950 text-cyan-400 hover:bg-slate-800"
-                    title="Edit Highlight"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`Delete highlight "${hl.title}"?`)) {
-                        deleteBusinessHighlight(hl.id);
-                      }
-                    }}
-                    className="p-1.5 rounded-lg bg-slate-950 text-rose-400 hover:bg-rose-950"
-                    title="Delete Highlight"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Highlight</span>
+            </button>
+            <button
+              type="button"
+              onClick={resetBusinessHighlightsToDefault}
+              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-1.5 border border-slate-800 transition"
+              title="Reset to default Awards, BNI Membership, and ISO 9001:2015 highlights"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="hidden sm:inline">Reset Defaults</span>
+            </button>
+          </div>
         </div>
+
+        {(!businessHighlights || businessHighlights.length === 0) ? (
+          <div className="p-8 rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 text-center flex flex-col items-center justify-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <Award className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-white font-bold text-sm">No Business Highlights Configured</h4>
+              <p className="text-xs text-slate-400 max-w-md">
+                Showcase your company credentials such as Corporate Awards, BNI Networking Membership, and ISO 9001:2015 Certifications on the public homepage.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleOpenAddHighlight}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-ruveron-royal to-ruveron-cyan text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:opacity-95 shadow-md"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add First Highlight</span>
+              </button>
+              <button
+                type="button"
+                onClick={resetBusinessHighlightsToDefault}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition"
+              >
+                <RotateCcw className="w-4 h-4 text-cyan-400" />
+                <span>Restore Default Credentials</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {businessHighlights.map((hl) => (
+              <div
+                key={hl.id}
+                className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-3 shadow-lg hover:border-slate-700 transition"
+              >
+                <div className="space-y-2.5">
+                  <div className="h-32 rounded-xl overflow-hidden bg-slate-950 relative">
+                    <img src={hl.imageUrl} alt={hl.title} className="w-full h-full object-cover" />
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/85 text-amber-300 font-mono text-[10px] font-bold border border-amber-500/30">
+                      {hl.category}
+                    </span>
+                    {hl.badgeText && (
+                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-cyan-950/85 text-cyan-300 font-sans text-[10px] font-semibold border border-cyan-500/30">
+                        {hl.badgeText}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-white text-sm line-clamp-1">{hl.title}</h4>
+                    {hl.subtitle && <div className="text-[11px] text-cyan-400 font-medium">{hl.subtitle}</div>}
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-3 leading-relaxed">{hl.description}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                    (hl.status === 'Active' || (hl.status as string) === 'published') ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/60' : 'bg-slate-800 text-slate-400 border border-slate-700/60'
+                  }`}>
+                    {hl.status === 'published' ? 'Active' : hl.status}
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditHighlight(hl)}
+                      className="p-1.5 rounded-lg bg-slate-950 text-cyan-400 hover:bg-slate-800"
+                      title="Edit Highlight"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm(`Delete highlight "${hl.title}"?`)) {
+                          deleteBusinessHighlight(hl.id);
+                        }
+                      }}
+                      className="p-1.5 rounded-lg bg-slate-950 text-rose-400 hover:bg-rose-950"
+                      title="Delete Highlight"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Home Content Form */}
